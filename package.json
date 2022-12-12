@@ -5,7 +5,8 @@
   "license": "MIT",
   "scripts": {
 	"deploy": "npx hardhat run scripts/deploy.ts --network optimismDev",
-	"abi": "npx hardhat run scripts/extract-abi.ts"
+	"abi": "npx hardhat run scripts/extract-abi.ts",
+	"test": "npx hardhat test"
   },
   "devDependencies": {
     "@ethersproject/abi": "^5.4.7",
