@@ -13,7 +13,7 @@ const config: HardhatUserConfig = {
   },
   etherscan: {
     apiKey: {
-      optimisticGoerli: process.env.ALCHEMY_DEV_KEY || '',
+      optimisticGoerli: process.env.OPTIMISM_SCAN_KEY || '',
     }
   }
 };
