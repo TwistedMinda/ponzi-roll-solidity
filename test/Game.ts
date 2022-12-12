@@ -47,7 +47,8 @@ describe("Game", function () {
 	it("Should upgrade round", async function () {
 		const { owner, game } = await loadFixture(deploy);
 
-		let before: BigNumber = 0
+		let before: BigNumber
+		
 		refetchInfo(game, ({ current, last }) => {
 			expect(current.id).equal(1)
 			before = last.timestamp
