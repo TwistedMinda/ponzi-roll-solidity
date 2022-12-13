@@ -34,12 +34,22 @@ export const getInfo = async (game: Game, callback: GetInfoCallback) => callback
 
 export const getPlayer = async (address: string, game: Game, callback: GetPlayerCallback) => callback(await game.players(address))
 
-export const playForWin = async (account: SignerWithAddress, game: Game, coordinator: any) => {
-	return false
+export const playForWin = async (
+	account: SignerWithAddress,
+	game: Game,
+	randomizer: any,
+	coordinator: any,
+) => {
+	await expect(await tryWinning(2, account, game, randomizer, coordinator)).to.be.true
 }
 
-export const playForLoss = async (account: SignerWithAddress, game: Game, coordinator: any) => {
-	return false
+export const playForLoss = async (
+	account: SignerWithAddress,
+	game: Game,
+	randomizer: any,
+	coordinator: any,
+) => {
+	await expect(await tryWinning(1, account, game, randomizer, coordinator)).to.be.false
 }
 
 export const tryWinning = async (
@@ -50,14 +60,22 @@ export const tryWinning = async (
 	coordinator: any,
 ) => {
 	let rollId: BigNumber = BigNumber.from("0")
+	let isWin = false
 	const captureRollId = (value: any) => {
 		rollId = value
-		console.log('yo')
 		return true
 	}
-	await expect(play(6, game, account)).to.emit(game, 'RollStarted').withArgs(captureRollId)
+	const captureWin = (value: any) => {
+		isWin = value
+		return true
+	}
+	const capture = (_: any) => {
+		return true
+	}
+	await expect(play(bet, game, account)).to.emit(game, 'RollStarted').withArgs(captureRollId)
 	await expect(coordinator.fulfillRandomWords(rollId, randomizer.address))
-		.to.emit(game, 'GameEnded')
+		.to.emit(game, 'GameEnded').withArgs(account.address, captureWin, capture, capture)
+	return isWin
 }
 
 export const play = async (
@@ -97,7 +115,7 @@ export const deploy = async () => {
 	const subscriptionId = ethers.BigNumber.from(topic)
 	await VRFCoordinatorV2Mock.fundSubscription(subscriptionId, fundAmount)
 
-	// Initilize randomizer
+	// Initilize Real randomizer
 	const keyHash = network["keyHash"]
 	const ChainlinkRandomizer = await ethers.getContractFactory("ChainlinkRandomizer")
 	const randomizer = await ChainlinkRandomizer.deploy(
@@ -105,21 +123,31 @@ export const deploy = async () => {
         vrfCoordinatorAddress,
         keyHash,
 	);
+
+	// Initilize Fake randomizer
+	const ChainlinkRandomizerMock = await ethers.getContractFactory("ChainlinkRandomizerMock")
+	const randomizerMock = await ChainlinkRandomizerMock.deploy(
+		subscriptionId,
+        vrfCoordinatorAddress,
+        keyHash,
+	);
 	
 	// Initialize contract
 	const Game = await ethers.getContractFactory("Game")
-	const game = await Game.deploy(randomizer.address)
+	const game = await Game.deploy(randomizerMock.address)
 	
 	// Authorize randomizer to talk only to game
 	randomizer.setGame(game.address)
+	randomizerMock.setGame(game.address)
 
 	// Wait full deployment
     await game.deployTransaction.wait(1)
 
 	// Add consumer
 	await VRFCoordinatorV2Mock.addConsumer(subscriptionId, randomizer.address)
+	await VRFCoordinatorV2Mock.addConsumer(subscriptionId, randomizerMock.address)
 
-	return { game, VRFCoordinatorV2Mock, randomizer, owner, otherAccount }
+	return { game, VRFCoordinatorV2Mock, randomizerMock, randomizer, owner, otherAccount }
 }
 
 export const sleep = (duration: number) => new Promise(resolve => setTimeout(resolve, duration))
