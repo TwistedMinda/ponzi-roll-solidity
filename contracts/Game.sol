@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity ^0.8.17;
 
+import "./ChainlinkRandomizer.sol";
+
 uint constant GAME_PRICE = 0.001 ether;
 uint constant ROUND_DURATION = 5 minutes;
 
@@ -30,17 +32,15 @@ struct LastRound {
     uint totalClaimed;
 }
 
-contract Game {
+contract Game is ChainlinkRandomizer {
     event GameEnded(address bidder, bool win, uint bet, uint result);
-
-    uint randNonce = 0;
     
     mapping (address => PlayerState) public players;
     CurrentRound public currentRound;
     LastRound public lastRound;
     Stats public stats;
 
-    constructor() {
+    constructor() ChainlinkRandomizer(2831) {
         currentRound.id = 1;
         lastRound.timestamp = block.timestamp;
     }
@@ -52,22 +52,34 @@ contract Game {
         increaseRoundIfNeeded();
         if (currentRound.id > players[msg.sender].lastWinRound)
             players[msg.sender].currentRoundShares = 0;
-        uint result = rollDice();
+		rollDice(msg.sender, bet);
+    }
+
+	function fulfillRandomWords(
+        uint256 _requestId,
+        uint256[] memory _randomWords
+    ) internal override {
+		super.fulfillRandomWords(_requestId, _randomWords);
+
+        uint result = rolls[_requestId].dieResult;
+		uint bet = rolls[_requestId].dieBet;
+		address playerAddress = rolls[_requestId].player;
         bool isWin = bet == 2;
         if (isWin) {
             // WIN
-            ++players[msg.sender].nbShares;
-            ++players[msg.sender].currentRoundShares;
-            players[msg.sender].lastWinRound = currentRound.id;
+            ++players[playerAddress].nbShares;
+            ++players[playerAddress].currentRoundShares;
+            players[playerAddress].lastWinRound = currentRound.id;
             ++stats.totalWinners;
-            transfer(payable(msg.sender), msg.value);
+            transfer(payable(playerAddress), GAME_PRICE);
         } else {
             // LOSS
             currentRound.benefits += msg.value;
         }
         ++stats.totalRolls;
         emit GameEnded(msg.sender, isWin, bet, result);
-    }
+
+	}
 
     function claim() public {
         PlayerState storage state = players[msg.sender];
@@ -110,6 +122,8 @@ contract Game {
         return (lastRound.benefits / lastRound.winners) * nbShares;
     }
 
+	/*
+    uint randNonce = 0;
     function random(uint min, uint max) private returns (uint) {
         randNonce++;
         uint randomHash = uint(keccak256(abi.encodePacked(block.timestamp, msg.sender, randNonce)));
@@ -119,6 +133,7 @@ contract Game {
     function rollDice() private returns (uint) {
         return (random(1, 6));
     }
+	*/
     
     function transfer(address payable _to, uint _amount) private {
         (bool success, ) = _to.call{value: _amount}("");

@@ -8,7 +8,7 @@ async function main() {
 
 	await contract.deployed();
 	console.log(`✅ Deployed contract ${contract.address}`);
-	await sleep(15 * 1000)
+	await sleep(30 * 1000)
 	await run("verify:verify", {
 		address: contract.address,
 		constructorArguments: [],
