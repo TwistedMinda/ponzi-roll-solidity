@@ -1,7 +1,12 @@
 import { Game } from "../typechain-types";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { parseEther } from "ethers/lib/utils";
-import { ethers } from "hardhat";
+import { ethers, network, run } from "hardhat";
+import {
+    VERIFICATION_BLOCK_CONFIRMATIONS,
+    networkConfig,
+    developmentChains,
+} from "./networks.config"
 
 type CurrentRound = Awaited<ReturnType<Game['currentRound']>>
 type LastRound = Awaited<ReturnType<Game['lastRound']>>
@@ -44,8 +49,39 @@ export const claim = (game: Game, account: SignerWithAddress) => game.connect(ac
 export const deploy = async () => {
 	const [owner, otherAccount] = await ethers.getSigners();
 
-	const Game = await ethers.getContractFactory("Game");
-	const game = await Game.deploy();
+	const chainId = 31337
+	const network = networkConfig['default']
 
-	return { game, owner, otherAccount };
+	// Create fake Chainlink Coordinatoor
+	const BASE_FEE = "100000000000000000"
+	const GAS_PRICE_LINK = "1000000000" // 0.000000001 LINK per gas
+	const VRFCoordinatorV2MockFactory = await ethers.getContractFactory("VRFCoordinatorV2Mock")
+	const VRFCoordinatorV2Mock = await VRFCoordinatorV2MockFactory.deploy(BASE_FEE, GAS_PRICE_LINK)
+	const vrfCoordinatorAddress = VRFCoordinatorV2Mock.address
+
+	// Create fake subscription
+	const fundAmount = network["fundAmount"] || "1000000000000000000"
+	const transaction = await VRFCoordinatorV2Mock.createSubscription()
+	const transactionReceipt = await transaction.wait(1)
+	if (!transactionReceipt.events)
+		return;
+	const subscriptionId = ethers.BigNumber.from(transactionReceipt.events[0].topics[1])
+	await VRFCoordinatorV2Mock.fundSubscription(subscriptionId, fundAmount)
+
+	// Initialize contract
+    const keyHash = network["keyHash"]
+	const Game = await ethers.getContractFactory("Game");
+	const game = await Game.deploy(
+		subscriptionId,
+        vrfCoordinatorAddress,
+        keyHash,
+	);
+
+	// Wait full deployment
+    await game.deployTransaction.wait(1)
+
+	// Add consumer
+	await VRFCoordinatorV2Mock.addConsumer(subscriptionId, game.address)
+
+	return { game, VRFCoordinatorV2Mock, owner, otherAccount };
 }

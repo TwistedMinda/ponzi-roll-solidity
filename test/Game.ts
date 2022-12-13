@@ -6,6 +6,26 @@ import { claim, deploy, GAME_PRICE, getInfo, getPlayer, play, ROUND_DURATION } f
 
 describe("Game", function () {
 	
+	it("Win", async function () {
+		const { owner, game, VRFCoordinatorV2Mock } = await loadFixture(deploy);
+
+		await play(1, game, owner)
+		await new Promise(async (resolve, reject) => {
+			game.once("GameEnded", async (requestId: BigNumber) => {
+				resolve("ok")
+			})
+			game.once("RollStarted", async (requestId: BigNumber) => {
+				VRFCoordinatorV2Mock.fulfillRandomWords(
+					requestId,
+					game.address,
+				)
+			})
+		})
+
+	})
+
+	return;
+
 	describe('Workflow', () => {
 		
 		it("Should upgrade round", async () => {

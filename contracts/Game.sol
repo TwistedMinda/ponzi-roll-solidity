@@ -40,7 +40,11 @@ contract Game is ChainlinkRandomizer {
     LastRound public lastRound;
     Stats public stats;
 
-    constructor() ChainlinkRandomizer(2831) {
+    constructor(
+		uint64 chainlinkSubscriptionId,
+		address coordinatorAddress,
+        bytes32 keyHash
+		) ChainlinkRandomizer(chainlinkSubscriptionId, coordinatorAddress, keyHash) {
         currentRound.id = 1;
         lastRound.timestamp = block.timestamp;
     }
@@ -52,18 +56,18 @@ contract Game is ChainlinkRandomizer {
         increaseRoundIfNeeded();
         if (currentRound.id > players[msg.sender].lastWinRound)
             players[msg.sender].currentRoundShares = 0;
-		rollDice(msg.sender, bet);
+		rollDice(bet);
     }
 
 	function fulfillRandomWords(
-        uint256 _requestId,
+        uint256 requestId,
         uint256[] memory _randomWords
     ) internal override {
-		super.fulfillRandomWords(_requestId, _randomWords);
+		super.fulfillRandomWords(requestId, _randomWords);
 
-        uint result = rolls[_requestId].dieResult;
-		uint bet = rolls[_requestId].dieBet;
-		address playerAddress = rolls[_requestId].player;
+        uint result = rolls[requestId].dieResult;
+		uint bet = rolls[requestId].dieBet;
+		address playerAddress = rolls[requestId].player;
         bool isWin = bet == 2;
         if (isWin) {
             // WIN
@@ -78,7 +82,6 @@ contract Game is ChainlinkRandomizer {
         }
         ++stats.totalRolls;
         emit GameEnded(msg.sender, isWin, bet, result);
-
 	}
 
     function claim() public {
