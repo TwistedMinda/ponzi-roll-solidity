@@ -1,4 +1,4 @@
-import { Game } from "../typechain-types";
+import { ChainlinkRandomizer, Game } from "../typechain-types";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { parseEther } from "ethers/lib/utils";
 import { ethers, network, run } from "hardhat";
@@ -69,12 +69,16 @@ export const tryWinning = async (
 		isWin = value
 		return true
 	}
+	const captureRes = (value: any) => {
+		//console.log('Die roll: ', value.toString(), '(expected ' + bet + ')')
+		return true
+	}
 	const capture = (_: any) => {
 		return true
 	}
 	await expect(play(bet, game, account)).to.emit(game, 'RollStarted').withArgs(captureRollId)
 	await expect(coordinator.fulfillRandomWords(rollId, randomizer.address))
-		.to.emit(game, 'GameEnded').withArgs(account.address, captureWin, capture, capture)
+		.to.emit(game, 'GameEnded').withArgs(account.address, captureWin, capture, captureRes)
 	return isWin
 }
 
@@ -92,7 +96,37 @@ export const claim = (game: Game, account: SignerWithAddress) => game.connect(ac
 	from: account.address,
 });
 
-export const deploy = async () => {
+const createRandomizer = async (
+	subId: BigNumber,
+	hash: string,
+	coordinatorAddress: string,
+	real: boolean,
+	) => {
+	if (real) {
+		// Initilize Real randomizer
+		const RandomizerFactory = await ethers.getContractFactory("ChainlinkRandomizer")
+		const randomizer = await RandomizerFactory.deploy(
+			subId,
+			coordinatorAddress,
+			hash,
+		);
+		return randomizer
+	}
+	
+	// Initilize Fake randomizer
+	const ChainlinkRandomizerMock = await ethers.getContractFactory("ChainlinkRandomizerMock")
+	const randomizerMock = await ChainlinkRandomizerMock.deploy(
+		subId,
+        coordinatorAddress,
+        hash,
+	);
+	return randomizerMock
+}
+
+type DeployConfig = {
+	realRandomizer?: boolean;
+}
+export const deploy = async (config?: any) => {
 	const [owner, otherAccount] = await ethers.getSigners();
 
 	const chainId = 31337
@@ -114,40 +148,28 @@ export const deploy = async () => {
 		: '0'
 	const subscriptionId = ethers.BigNumber.from(topic)
 	await VRFCoordinatorV2Mock.fundSubscription(subscriptionId, fundAmount)
-
-	// Initilize Real randomizer
-	const keyHash = network["keyHash"]
-	const ChainlinkRandomizer = await ethers.getContractFactory("ChainlinkRandomizer")
-	const randomizer = await ChainlinkRandomizer.deploy(
-		subscriptionId,
-        vrfCoordinatorAddress,
-        keyHash,
-	);
-
-	// Initilize Fake randomizer
-	const ChainlinkRandomizerMock = await ethers.getContractFactory("ChainlinkRandomizerMock")
-	const randomizerMock = await ChainlinkRandomizerMock.deploy(
-		subscriptionId,
-        vrfCoordinatorAddress,
-        keyHash,
-	);
 	
+	const randomizer = await createRandomizer(
+		subscriptionId,
+		network['keyHash'],
+		vrfCoordinatorAddress,
+		config?.realRandomizer
+	)
+
 	// Initialize contract
 	const Game = await ethers.getContractFactory("Game")
-	const game = await Game.deploy(randomizerMock.address)
+	const game = await Game.deploy(randomizer.address)
 	
 	// Authorize randomizer to talk only to game
 	randomizer.setGame(game.address)
-	randomizerMock.setGame(game.address)
-
+	
 	// Wait full deployment
     await game.deployTransaction.wait(1)
 
 	// Add consumer
 	await VRFCoordinatorV2Mock.addConsumer(subscriptionId, randomizer.address)
-	await VRFCoordinatorV2Mock.addConsumer(subscriptionId, randomizerMock.address)
 
-	return { game, VRFCoordinatorV2Mock, randomizerMock, randomizer, owner, otherAccount }
+	return { game, VRFCoordinatorV2Mock, randomizer, owner, otherAccount }
 }
 
 export const sleep = (duration: number) => new Promise(resolve => setTimeout(resolve, duration))

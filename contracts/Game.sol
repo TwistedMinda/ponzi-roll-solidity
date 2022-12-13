@@ -146,7 +146,7 @@ contract Game {
     function transfer(address payable _to, uint _amount) private {
         (bool success, ) = _to.call{value: _amount}("");
         require(success, "Failed to send Ether");
-    }
+	}
 
 	modifier isRandomizer() {
 		require(msg.sender == address(randomizer), "Unknown caller");
