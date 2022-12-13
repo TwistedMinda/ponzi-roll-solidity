@@ -68,20 +68,22 @@ contract Game is ChainlinkRandomizer {
         uint result = rolls[requestId].dieResult;
 		uint bet = rolls[requestId].dieBet;
 		address playerAddress = rolls[requestId].player;
-        bool isWin = bet == 2;
+        bool isWin = bet == result;
         if (isWin) {
             // WIN
+			/*
             ++players[playerAddress].nbShares;
             ++players[playerAddress].currentRoundShares;
             players[playerAddress].lastWinRound = currentRound.id;
+			*/
             ++stats.totalWinners;
             transfer(payable(playerAddress), GAME_PRICE);
         } else {
             // LOSS
-            currentRound.benefits += msg.value;
+            currentRound.benefits += GAME_PRICE;
         }
         ++stats.totalRolls;
-        emit GameEnded(msg.sender, isWin, bet, result);
+        emit GameEnded(playerAddress, isWin, bet, result);
 	}
 
     function claim() public {

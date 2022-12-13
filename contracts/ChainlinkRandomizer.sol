@@ -61,7 +61,8 @@ abstract contract ChainlinkRandomizer is VRFConsumerBaseV2, ConfirmedOwner {
     ) internal virtual override {
         require(rolls[requestId].exists, "Roll not found");
         rolls[requestId].fulfilled = true;
-        rolls[requestId].dieResult = _randomWords[0];
+        rolls[requestId].dieResult = (_randomWords[0] % 6) + 1;
 		emit RollFinished(requestId);
     }
+	
 }

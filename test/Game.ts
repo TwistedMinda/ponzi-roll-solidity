@@ -3,25 +3,44 @@ import { expect } from "chai";
 import { parseEther } from "ethers/lib/utils";
 import { BigNumber } from "ethers";
 import { claim, deploy, GAME_PRICE, getInfo, getPlayer, play, ROUND_DURATION } from "./utils";
+import { Game } from "../typechain-types";
+
+const checkWin = async (game: Game, VRFCoordinatorV2Mock: any) => {
+	return await new Promise(async (resolve, reject) => {
+		
+		game.once("GameEnded", (_: string, win: boolean, bet: BigNumber, result: BigNumber) => {
+			console.log('g')
+			resolve(win)
+		})
+		game.once("RollStarted", async (rollId: BigNumber) => {
+			console.log('h')
+			const trx = await VRFCoordinatorV2Mock.fulfillRandomWords(
+				rollId,
+				game.address,
+			)
+			const res = await trx.wait(1)
+			console.log(res.events[0])
+		})
+	})
+}
 
 describe("Game", function () {
-	
+
+	it("Lose", async function () {
+		const { owner, game, VRFCoordinatorV2Mock } = await loadFixture(deploy);
+		
+		await play(5, game, owner)
+
+		const win = await checkWin(game, VRFCoordinatorV2Mock)
+		expect(win).to.be.false
+	})
+
 	it("Win", async function () {
 		const { owner, game, VRFCoordinatorV2Mock } = await loadFixture(deploy);
 
-		await play(1, game, owner)
-		await new Promise(async (resolve, reject) => {
-			game.once("GameEnded", async (requestId: BigNumber) => {
-				resolve("ok")
-			})
-			game.once("RollStarted", async (requestId: BigNumber) => {
-				VRFCoordinatorV2Mock.fulfillRandomWords(
-					requestId,
-					game.address,
-				)
-			})
-		})
-
+		await play(6, game, owner)
+		const win = await checkWin(game, VRFCoordinatorV2Mock)
+		expect(win).to.be.true
 	})
 
 	return;
