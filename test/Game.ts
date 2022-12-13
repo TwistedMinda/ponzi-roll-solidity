@@ -7,6 +7,25 @@ import { Game } from "../typechain-types";
 
 describe("Game", function () {
 
+	it("test", async () => {
+		const { owner, game,randomizer, VRFCoordinatorV2Mock } = await loadFixture(deploy);
+		let rollId: BigNumber = BigNumber.from("0")
+		const captureRollId = (value: any) => {
+			rollId = value
+			console.log('yo')
+			return true
+		}
+		await expect(play(1, game, owner)).to.emit(game, 'RollStarted').withArgs(captureRollId)
+		const trx = await VRFCoordinatorV2Mock.fulfillRandomWords(rollId, game.address)
+		const waiting = await trx.wait(1)
+		if (waiting.events) {
+
+			for (const r of waiting.events)
+			console.log(r.event, r.args)
+		}
+		console.log(rollId)
+	})
+	/*
 	describe('Workflow', () => {
 		
 		it("Should upgrade round", async () => {
@@ -116,6 +135,6 @@ describe("Game", function () {
 			await expect(play(2, game, owner, parseEther('0'))).to.be.revertedWith('Game price is not negociable')
 		})
 	})
-
+	*/
 	
 })

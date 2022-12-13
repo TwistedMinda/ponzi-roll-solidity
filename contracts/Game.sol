@@ -32,21 +32,30 @@ struct LastRound {
     uint totalClaimed;
 }
 
-contract Game is ChainlinkRandomizer {
+	struct RollStatus {
+        bool exists;
+        bool fulfilled;
+        uint dieResult;
+        uint dieBet;
+		address player;
+    }
+
+contract Game {
+    event RollStarted(uint requestId);
     event GameEnded(address bidder, bool win, uint bet, uint result);
     
+    mapping(uint256 => RollStatus) public rolls;
+
     mapping (address => PlayerState) public players;
     CurrentRound public currentRound;
     LastRound public lastRound;
     Stats public stats;
+	ChainlinkRandomizer randomizer;
 
-    constructor(
-		uint64 chainlinkSubscriptionId,
-		address coordinatorAddress,
-        bytes32 keyHash
-		) ChainlinkRandomizer(chainlinkSubscriptionId, coordinatorAddress, keyHash) {
+    constructor(address randomizerAddress) {
         currentRound.id = 1;
         lastRound.timestamp = block.timestamp;
+		randomizer = ChainlinkRandomizer(randomizerAddress);
     }
 
     function play(uint bet) public payable {
@@ -56,19 +65,26 @@ contract Game is ChainlinkRandomizer {
         increaseRoundIfNeeded();
         if (currentRound.id > players[msg.sender].lastWinRound)
             players[msg.sender].currentRoundShares = 0;
-		rollDice(bet);
+		uint requestId = randomizer.rollDice();
+        rolls[requestId] = RollStatus({
+			player: msg.sender,
+            dieResult: 0,
+			dieBet: bet,
+            exists: true,
+            fulfilled: false
+        });
+		emit RollStarted(requestId);
     }
 
-	function fulfillRandomWords(
-        uint256 requestId,
-        uint256[] memory _randomWords
-    ) internal override {
-		super.fulfillRandomWords(requestId, _randomWords);
+	function diceRolled(
+        uint requestId,
+        uint dieResult
+    ) public {
+        require(rolls[requestId].exists, "Roll not found");
 
-        uint result = rolls[requestId].dieResult;
 		uint bet = rolls[requestId].dieBet;
 		address playerAddress = rolls[requestId].player;
-        bool isWin = bet == result;
+        bool isWin = bet == dieResult;
         if (isWin) {
             // WIN
 			/*
@@ -83,7 +99,7 @@ contract Game is ChainlinkRandomizer {
             currentRound.benefits += GAME_PRICE;
         }
         ++stats.totalRolls;
-        emit GameEnded(playerAddress, isWin, bet, result);
+        emit GameEnded(playerAddress, isWin, bet, dieResult);
 	}
 
     function claim() public {
@@ -127,19 +143,6 @@ contract Game is ChainlinkRandomizer {
         return (lastRound.benefits / lastRound.winners) * nbShares;
     }
 
-	/*
-    uint randNonce = 0;
-    function random(uint min, uint max) private returns (uint) {
-        randNonce++;
-        uint randomHash = uint(keccak256(abi.encodePacked(block.timestamp, msg.sender, randNonce)));
-        return (randomHash % max) + min;
-    } 
-
-    function rollDice() private returns (uint) {
-        return (random(1, 6));
-    }
-	*/
-    
     function transfer(address payable _to, uint _amount) private {
         (bool success, ) = _to.call{value: _amount}("");
         require(success, "Failed to send Ether");
