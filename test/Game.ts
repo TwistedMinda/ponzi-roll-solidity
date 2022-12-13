@@ -15,15 +15,19 @@ describe("Game", function () {
 			console.log('yo')
 			return true
 		}
-		await expect(play(1, game, owner)).to.emit(game, 'RollStarted').withArgs(captureRollId)
-		const trx = await VRFCoordinatorV2Mock.fulfillRandomWords(rollId, game.address)
-		const waiting = await trx.wait(1)
-		if (waiting.events) {
-
-			for (const r of waiting.events)
-			console.log(r.event, r.args)
+		let result: BigNumber = BigNumber.from("0")
+		const captureREs = (value: any) => {
+			result = value
+			console.log('yo')
+			return true
 		}
-		console.log(rollId)
+		//await expect(play(1, game, owner)).to.emit(game, 'RollStarted')
+		await expect(randomizer.rollDice()).to.emit(randomizer, 'RollStarting').withArgs(captureRollId)
+		await expect(VRFCoordinatorV2Mock.fulfillRandomWords(rollId, randomizer.address))
+			.to.emit(randomizer, 'RollFinished')
+			.withArgs(captureREs)
+		console.log(result)
+		
 	})
 	/*
 	describe('Workflow', () => {

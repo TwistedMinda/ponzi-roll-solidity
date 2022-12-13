@@ -10,7 +10,8 @@ contract Receiver {
 	function rolledDice(uint _resultId, uint _dieResult) public {}
 }
 
-contract ChainlinkRandomizer is VRFConsumerBaseV2, ConfirmedOwner {
+contract ChainlinkRandomizer is VRFConsumerBaseV2  {
+    event RollStarting(uint requestId);
     event RollFinished(uint requestId);
 
     VRFCoordinatorV2Interface coordinator;
@@ -27,14 +28,14 @@ contract ChainlinkRandomizer is VRFConsumerBaseV2, ConfirmedOwner {
 		uint64 id,
 		address addr,
 		bytes32 key
-		) VRFConsumerBaseV2(addr) ConfirmedOwner(msg.sender) {
+		) VRFConsumerBaseV2(addr) {
 		coordinator = VRFCoordinatorV2Interface(addr);
 		subId = id;
 		keyHash = key;
 		admin = msg.sender;
 	}
 
-	function rollDice() isGame() public returns (uint) {
+	function rollDice() public returns (uint) {
 		uint requestId = coordinator.requestRandomWords(
             keyHash,
             subId,
@@ -42,6 +43,7 @@ contract ChainlinkRandomizer is VRFConsumerBaseV2, ConfirmedOwner {
             callbackGasLimit,
             numWords
         );
+		emit RollStarting(requestId);
 		return requestId;
     }
 
@@ -49,8 +51,8 @@ contract ChainlinkRandomizer is VRFConsumerBaseV2, ConfirmedOwner {
         uint256 requestId,
         uint256[] memory _randomWords
     ) internal override {
-		emit RollFinished(requestId);
-		game.rolledDice(requestId, (_randomWords[0] % 6) + 1);
+		emit RollFinished((_randomWords[0] % 6) + 1);
+		//game.rolledDice(requestId, (_randomWords[0] % 6) + 1);
     }
 	
 	function setGame(address _game) isOwner() public {
