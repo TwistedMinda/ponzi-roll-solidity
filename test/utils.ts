@@ -99,8 +99,8 @@ export const deploy = async () => {
 	const network = networkConfig['default']
 
 	// Deploy fake Chainlink Coordinator
-	const BASE_FEE = "100000"
-	const GAS_PRICE_LINK = "1000000" // 0.000000001 LINK per gas
+	const BASE_FEE = "10000000000"
+	const GAS_PRICE_LINK = "100000000" // 0.000000001 LINK per gas
 	const VRFCoordinatorV2MockFactory = await ethers.getContractFactory("VRFCoordinatorV2Mock")
 	const VRFCoordinatorV2Mock = await VRFCoordinatorV2MockFactory.deploy(BASE_FEE, GAS_PRICE_LINK)
 	const vrfCoordinatorAddress = VRFCoordinatorV2Mock.address

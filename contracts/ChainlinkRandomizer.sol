@@ -46,7 +46,7 @@ contract ChainlinkRandomizer is VRFConsumerBaseV2  {
     function fulfillRandomWords(
         uint256 requestId,
         uint256[] memory _randomWords
-    ) internal override {
+    ) virtual internal override {
 		game.diceRolled(requestId, (_randomWords[0] % 6) + 1);
     }
 	

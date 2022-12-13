@@ -35,10 +35,10 @@ describe("Game", function () {
 		})
 	
 		it("Winning updates correctly", async () => {
-			const { owner, game, randomizerMock, VRFCoordinatorV2Mock } = await loadFixture(deploy);
+			const { owner, game, randomizer, VRFCoordinatorV2Mock } = await loadFixture(deploy);
 			
 			getInfo(game, ({ current }) => expect(current.benefits).equal(0))
-			await playForWin(owner, game, randomizerMock, VRFCoordinatorV2Mock)
+			await playForWin(owner, game, randomizer, VRFCoordinatorV2Mock)
 			getInfo(game, ({ stats, current }) => {
 				expect(stats.totalWinners).equal(1)
 				expect(current.benefits).equal(0)
