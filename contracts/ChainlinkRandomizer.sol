@@ -11,9 +11,6 @@ contract Receiver {
 }
 
 contract ChainlinkRandomizer is VRFConsumerBaseV2  {
-    event RollStarting(uint requestId);
-    event RollFinished(uint requestId);
-
     VRFCoordinatorV2Interface coordinator;
 
     uint32 callbackGasLimit = 100000;
@@ -35,7 +32,7 @@ contract ChainlinkRandomizer is VRFConsumerBaseV2  {
 		admin = msg.sender;
 	}
 
-	function rollDice() public returns (uint) {
+	function rollDice() isGame() public returns (uint) {
 		uint requestId = coordinator.requestRandomWords(
             keyHash,
             subId,
@@ -43,7 +40,6 @@ contract ChainlinkRandomizer is VRFConsumerBaseV2  {
             callbackGasLimit,
             numWords
         );
-		emit RollStarting(requestId);
 		return requestId;
     }
 
@@ -51,7 +47,6 @@ contract ChainlinkRandomizer is VRFConsumerBaseV2  {
         uint256 requestId,
         uint256[] memory _randomWords
     ) internal override {
-		emit RollFinished(requestId);
 		game.diceRolled(requestId, (_randomWords[0] % 6) + 1);
     }
 	

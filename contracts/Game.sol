@@ -67,7 +67,7 @@ contract Game {
             players[msg.sender].currentRoundShares = 0;
 		uint requestId = randomizer.rollDice();
         rolls[requestId] = RollStatus({
-			player: msg.sender,
+			player: address(msg.sender),
             dieResult: 0,
 			dieBet: bet,
             exists: true,
@@ -79,7 +79,7 @@ contract Game {
 	function diceRolled(
         uint requestId,
         uint dieResult
-    ) public {
+    ) isRandomizer() public {
         require(rolls[requestId].exists, "Roll not found");
 
 		uint bet = rolls[requestId].dieBet;
@@ -87,11 +87,11 @@ contract Game {
         bool isWin = bet == dieResult;
         if (isWin) {
             // WIN
-            /*
+            
 			++players[playerAddress].nbShares;
-            ++players[playerAddress].currentRoundShares;
-            players[playerAddress].lastWinRound = currentRound.id;
-			*/
+            //++players[playerAddress].currentRoundShares;
+            //players[playerAddress].lastWinRound = currentRound.id;
+			
             ++stats.totalWinners;
             transfer(payable(playerAddress), GAME_PRICE);
         } else {
@@ -148,4 +148,8 @@ contract Game {
         require(success, "Failed to send Ether");
     }
 
+	modifier isRandomizer() {
+		require(msg.sender == address(randomizer), "Unknown caller");
+		_;    
+	}
 }

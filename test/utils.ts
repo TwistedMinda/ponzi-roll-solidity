@@ -35,39 +35,29 @@ export const getInfo = async (game: Game, callback: GetInfoCallback) => callback
 export const getPlayer = async (address: string, game: Game, callback: GetPlayerCallback) => callback(await game.players(address))
 
 export const playForWin = async (account: SignerWithAddress, game: Game, coordinator: any) => {
-	return expectPlayResult(6, 6, account, game, coordinator)
+	return false
 }
 
 export const playForLoss = async (account: SignerWithAddress, game: Game, coordinator: any) => {
-	return expectPlayResult(5, 6, account, game, coordinator)
+	return false
 }
 
-const expectPlayResult = async (
+export const tryWinning = async (
 	bet: number,
-	result: number,
 	account: SignerWithAddress,
 	game: Game,
-	coordinator: any) => {
-	console.log(bet, result)
+	randomizer: any,
+	coordinator: any,
+) => {
 	let rollId: BigNumber = BigNumber.from("0")
 	const captureRollId = (value: any) => {
 		rollId = value
+		console.log('yo')
 		return true
 	}
-	const captureBet = (value: any) => {
-		console.log('bet', value)
-		return true
-	}
-	const captureRes = (value: any) => {
-		console.log('Res', value)
-		return true
-	}
-	const win = bet == result
-	await expect(play(bet, game, account)).to.emit(game, 'RollStarted').withArgs(captureRollId)
-	await expect(coordinator.fulfillRandomWords(
-		rollId,
-		game.address,
-	)).to.emit(game, "GameEnded").withArgs(account.address, win, captureBet, captureRes)
+	await expect(play(6, game, account)).to.emit(game, 'RollStarted').withArgs(captureRollId)
+	await expect(coordinator.fulfillRandomWords(rollId, randomizer.address))
+		.to.emit(game, 'GameEnded')
 }
 
 export const play = async (
@@ -91,14 +81,14 @@ export const deploy = async () => {
 	const network = networkConfig['default']
 
 	// Deploy fake Chainlink Coordinator
-	const BASE_FEE = "1000000"
-	const GAS_PRICE_LINK = "10000000" // 0.000000001 LINK per gas
+	const BASE_FEE = "100000"
+	const GAS_PRICE_LINK = "1000000" // 0.000000001 LINK per gas
 	const VRFCoordinatorV2MockFactory = await ethers.getContractFactory("VRFCoordinatorV2Mock")
 	const VRFCoordinatorV2Mock = await VRFCoordinatorV2MockFactory.deploy(BASE_FEE, GAS_PRICE_LINK)
 	const vrfCoordinatorAddress = VRFCoordinatorV2Mock.address
 
 	// Create fake subscription
-	const fundAmount = "10000000000000000000000"
+	const fundAmount = "100000000000000000000000"
 	const transaction = await VRFCoordinatorV2Mock.createSubscription()
 	const transactionReceipt = await transaction.wait(1)
 	const topic = transactionReceipt.events

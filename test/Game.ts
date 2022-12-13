@@ -2,36 +2,22 @@ import { time, loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
 import { parseEther } from "ethers/lib/utils";
 import { BigNumber } from "ethers";
-import { claim, deploy, GAME_PRICE, getInfo, getPlayer, play, playForLoss, playForWin, ROUND_DURATION, sleep } from "./utils";
+import { claim, deploy, GAME_PRICE, getInfo, getPlayer, play, playForLoss, playForWin, ROUND_DURATION, sleep, tryWinning } from "./utils";
 import { Game } from "../typechain-types";
+
+const readEvents = async (res: any) => {
+	const trx = await res.wait(1)
+	for (const r of trx.events)
+		console.log(r.event, r.args)
+}
 
 describe("Game", function () {
 
 	it("test", async () => {
-		const { owner, game,randomizer, VRFCoordinatorV2Mock } = await loadFixture(deploy);
-		let rollId: BigNumber = BigNumber.from("0")
-		const captureRollId = (value: any) => {
-			rollId = value
-			console.log('yo')
-			return true
-		}
-		const captureBet = (value: any) => {
-			console.log('bet', value)
-			return true
-		}
-		const captureRes = (value: any) => {
-			console.log('Res', value)
-			return true
-		}
-
-		const captureWin = (value: any) => {
-			console.log('win', value)
-			return true
-		}
-		await expect(play(6, game, owner)).to.emit(game, 'RollStarted').withArgs(captureRollId)
-		await expect(VRFCoordinatorV2Mock.fulfillRandomWords(rollId, randomizer.address))
-			.to.emit(game, 'GameEnded').withArgs(owner.address, captureWin, captureBet, captureRes)
+		const { owner, game, randomizer, VRFCoordinatorV2Mock } = await loadFixture(deploy);
 		
+		await tryWinning(1, owner, game, randomizer, VRFCoordinatorV2Mock)
+		await tryWinning(2, owner, game, randomizer, VRFCoordinatorV2Mock)
 	})
 	/*
 	describe('Workflow', () => {
