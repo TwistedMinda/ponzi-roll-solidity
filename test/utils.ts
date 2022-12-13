@@ -48,16 +48,26 @@ const expectPlayResult = async (
 	account: SignerWithAddress,
 	game: Game,
 	coordinator: any) => {
-	let rollId = 0
+	console.log(bet, result)
+	let rollId: BigNumber = BigNumber.from("0")
 	const captureRollId = (value: any) => {
 		rollId = value
 		return true
 	}
+	const captureBet = (value: any) => {
+		console.log('bet', value)
+		return true
+	}
+	const captureRes = (value: any) => {
+		console.log('Res', value)
+		return true
+	}
+	const win = bet == result
 	await expect(play(bet, game, account)).to.emit(game, 'RollStarted').withArgs(captureRollId)
 	await expect(coordinator.fulfillRandomWords(
 		rollId,
 		game.address,
-	)).to.emit(game, "GameEnded").withArgs(account.address, bet == result, bet, result)
+	)).to.emit(game, "GameEnded").withArgs(account.address, win, captureBet, captureRes)
 }
 
 export const play = async (
@@ -88,7 +98,7 @@ export const deploy = async () => {
 	const vrfCoordinatorAddress = VRFCoordinatorV2Mock.address
 
 	// Create fake subscription
-	const fundAmount = "1000000000000000000"
+	const fundAmount = "10000000000000000000000"
 	const transaction = await VRFCoordinatorV2Mock.createSubscription()
 	const transactionReceipt = await transaction.wait(1)
 	const topic = transactionReceipt.events
