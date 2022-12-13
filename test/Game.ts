@@ -2,7 +2,7 @@ import { time, loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
 import { parseEther } from "ethers/lib/utils";
 import { BigNumber } from "ethers";
-import { checkWin, claim, deploy, GAME_PRICE, getInfo, getPlayer, play, ROUND_DURATION } from "./utils";
+import { claim, deploy, GAME_PRICE, getInfo, getPlayer, play, playForLoss, playForWin, ROUND_DURATION, sleep } from "./utils";
 import { Game } from "../typechain-types";
 
 describe("Game", function () {
@@ -10,18 +10,13 @@ describe("Game", function () {
 	it("Lose", async () => {
 		const { owner, game, VRFCoordinatorV2Mock } = await loadFixture(deploy);
 		
-		await play(5, game, owner)
-
-		const win = await checkWin(game, VRFCoordinatorV2Mock)
-		expect(win).to.be.false
+		await playForLoss(owner, game, VRFCoordinatorV2Mock);
 	})
 
 	it("Win", async () => {
 		const { owner, game, VRFCoordinatorV2Mock } = await loadFixture(deploy);
-
-		await play(5, game, owner)
-		const win = await checkWin(game, VRFCoordinatorV2Mock)
-		expect(win).to.be.true
+		
+		await playForWin(owner, game, VRFCoordinatorV2Mock);
 	})
 
 	return;

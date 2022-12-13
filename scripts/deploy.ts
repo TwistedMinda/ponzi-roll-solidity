@@ -1,6 +1,5 @@
 import { ethers, run } from "hardhat";
-
-const sleep = (duration: number) => new Promise(resolve => setTimeout(resolve, duration))
+import { sleep } from "../test/utils";
 
 async function main() {
 	const Game = await ethers.getContractFactory("Game");
