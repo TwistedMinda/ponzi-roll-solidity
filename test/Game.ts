@@ -7,7 +7,7 @@ import { Game } from "../typechain-types";
 
 describe("Game", function () {
 
-	it("Lose", async function () {
+	it("Lose", async () => {
 		const { owner, game, VRFCoordinatorV2Mock } = await loadFixture(deploy);
 		
 		await play(5, game, owner)
@@ -16,7 +16,7 @@ describe("Game", function () {
 		expect(win).to.be.false
 	})
 
-	it("Win", async function () {
+	it("Win", async () => {
 		const { owner, game, VRFCoordinatorV2Mock } = await loadFixture(deploy);
 
 		await play(5, game, owner)
