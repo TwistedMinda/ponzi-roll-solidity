@@ -51,8 +51,8 @@ contract ChainlinkRandomizer is VRFConsumerBaseV2  {
         uint256 requestId,
         uint256[] memory _randomWords
     ) internal override {
-		emit RollFinished((_randomWords[0] % 6) + 1);
-		//game.rolledDice(requestId, (_randomWords[0] % 6) + 1);
+		emit RollFinished(requestId);
+		game.rolledDice(requestId, (_randomWords[0] % 6) + 1);
     }
 	
 	function setGame(address _game) isOwner() public {
