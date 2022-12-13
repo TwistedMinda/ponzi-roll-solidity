@@ -2,27 +2,8 @@ import { time, loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
 import { parseEther } from "ethers/lib/utils";
 import { BigNumber } from "ethers";
-import { claim, deploy, GAME_PRICE, getInfo, getPlayer, play, ROUND_DURATION } from "./utils";
+import { checkWin, claim, deploy, GAME_PRICE, getInfo, getPlayer, play, ROUND_DURATION } from "./utils";
 import { Game } from "../typechain-types";
-
-const checkWin = async (game: Game, VRFCoordinatorV2Mock: any) => {
-	return await new Promise(async (resolve, reject) => {
-		
-		game.once("GameEnded", (_: string, win: boolean, bet: BigNumber, result: BigNumber) => {
-			console.log('g')
-			resolve(win)
-		})
-		game.once("RollStarted", async (rollId: BigNumber) => {
-			console.log('h')
-			const trx = await VRFCoordinatorV2Mock.fulfillRandomWords(
-				rollId,
-				game.address,
-			)
-			const res = await trx.wait(1)
-			console.log(res.events[0])
-		})
-	})
-}
 
 describe("Game", function () {
 
@@ -38,7 +19,7 @@ describe("Game", function () {
 	it("Win", async function () {
 		const { owner, game, VRFCoordinatorV2Mock } = await loadFixture(deploy);
 
-		await play(6, game, owner)
+		await play(5, game, owner)
 		const win = await checkWin(game, VRFCoordinatorV2Mock)
 		expect(win).to.be.true
 	})

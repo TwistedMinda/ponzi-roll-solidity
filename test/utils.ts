@@ -7,6 +7,7 @@ import {
     networkConfig,
     developmentChains,
 } from "./networks.config"
+import { BigNumber } from "ethers";
 
 type CurrentRound = Awaited<ReturnType<Game['currentRound']>>
 type LastRound = Awaited<ReturnType<Game['lastRound']>>
@@ -32,15 +33,38 @@ export const getInfo = async (game: Game, callback: GetInfoCallback) => callback
 
 export const getPlayer = async (address: string, game: Game, callback: GetPlayerCallback) => callback(await game.players(address))
 
-export const play = (
+export const checkWin = async (game: Game, VRFCoordinatorV2Mock: any) => {
+	return await new Promise(async (resolve, reject) => {
+		
+		game.once("GameEnded", (_: string, win: boolean, bet: BigNumber, result: BigNumber) => {
+			console.log('g')
+			resolve(win)
+		})
+		game.once("RollStarted", async (rollId: BigNumber) => {
+			console.log('h')
+			const trx = await VRFCoordinatorV2Mock.fulfillRandomWords(
+				rollId,
+				game.address,
+			)
+			const res = await trx.wait(4)
+			for (const event of res.events) {
+				console.log(`Event ${event.event} with args ${event.args}`);
+			  }
+		})
+	})
+}
+
+export const play = async (
 	bet: number,
 	game: Game,
 	account: SignerWithAddress,
 	amount = GAME_PRICE
-) => game.connect(account).play(bet, {
-	from: account.address,
-	value: amount,
-});
+) => {
+	await game.connect(account).play(bet, {
+		from: account.address,
+		value: amount,
+	})
+};
 
 export const claim = (game: Game, account: SignerWithAddress) => game.connect(account).claim({
 	from: account.address,
