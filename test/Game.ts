@@ -15,18 +15,22 @@ describe("Game", function () {
 			console.log('yo')
 			return true
 		}
-		let result: BigNumber = BigNumber.from("0")
-		const captureREs = (value: any) => {
-			result = value
-			console.log('yo')
+		const captureBet = (value: any) => {
+			console.log('bet', value)
 			return true
 		}
-		//await expect(play(1, game, owner)).to.emit(game, 'RollStarted')
-		await expect(randomizer.rollDice()).to.emit(randomizer, 'RollStarting').withArgs(captureRollId)
+		const captureRes = (value: any) => {
+			console.log('Res', value)
+			return true
+		}
+
+		const captureWin = (value: any) => {
+			console.log('win', value)
+			return true
+		}
+		await expect(play(6, game, owner)).to.emit(game, 'RollStarted').withArgs(captureRollId)
 		await expect(VRFCoordinatorV2Mock.fulfillRandomWords(rollId, randomizer.address))
-			.to.emit(randomizer, 'RollFinished')
-			.withArgs(captureREs)
-		console.log(result)
+			.to.emit(game, 'GameEnded').withArgs(owner.address, captureWin, captureBet, captureRes)
 		
 	})
 	/*

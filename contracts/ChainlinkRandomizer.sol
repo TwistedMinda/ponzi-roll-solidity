@@ -7,7 +7,7 @@ import "@chainlink/contracts/src/v0.8/ConfirmedOwner.sol";
 import "@chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol";
 
 contract Receiver {
-	function rolledDice(uint _resultId, uint _dieResult) public {}
+	function diceRolled(uint _resultId, uint _dieResult) public {}
 }
 
 contract ChainlinkRandomizer is VRFConsumerBaseV2  {
@@ -52,7 +52,7 @@ contract ChainlinkRandomizer is VRFConsumerBaseV2  {
         uint256[] memory _randomWords
     ) internal override {
 		emit RollFinished(requestId);
-		game.rolledDice(requestId, (_randomWords[0] % 6) + 1);
+		game.diceRolled(requestId, (_randomWords[0] % 6) + 1);
     }
 	
 	function setGame(address _game) isOwner() public {

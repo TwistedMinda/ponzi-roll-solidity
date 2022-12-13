@@ -87,8 +87,8 @@ contract Game {
         bool isWin = bet == dieResult;
         if (isWin) {
             // WIN
-			/*
-            ++players[playerAddress].nbShares;
+            /*
+			++players[playerAddress].nbShares;
             ++players[playerAddress].currentRoundShares;
             players[playerAddress].lastWinRound = currentRound.id;
 			*/
