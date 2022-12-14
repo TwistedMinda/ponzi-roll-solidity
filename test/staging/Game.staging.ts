@@ -8,8 +8,10 @@ describe("Game", function () {
 	describe('Randomization', () => {
 		
 		it('Generate random dice roll', async () => {
-			const { owner, game, randomizer, coordinator } = await loadFixture(deployStaging);
+			const { owner, game, randomizer, coordinator } = await deployStaging();
+
 			const { result } = await tryWinning(1, owner, game, randomizer, coordinator)
+			console.log(result)
 			expect(result).lessThanOrEqual(6)
 			expect(result).above(0)
 		})

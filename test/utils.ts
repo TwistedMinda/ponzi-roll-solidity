@@ -106,8 +106,8 @@ export const claim = (game: Game, account: SignerWithAddress) => game.connect(ac
 
 const deployRealRandomizer = async (
 	subId: BigNumber,
-	hash: string,
-	coordinatorAddress: string
+	coordinatorAddress: string,
+	hash: string
 ) => {
 	const RandomizerFactory = await ethers.getContractFactory("ChainlinkRandomizer")
 	return await RandomizerFactory.deploy(
@@ -119,8 +119,8 @@ const deployRealRandomizer = async (
 
 const deployFakeRandomizer = async (
 	subId: BigNumber,
-	hash: string,
-	coordinatorAddress: string
+	coordinatorAddress: string,
+	hash: string
 ) => {
 	const ChainlinkRandomizerMock = await ethers.getContractFactory("ChainlinkRandomizerMock")
 	return await ChainlinkRandomizerMock.deploy(
@@ -149,22 +149,20 @@ export const deploy = async (config?: DeployConfig) => {
 	const subscriptionId = ethers.BigNumber.from("1")
 	await coordinator.createSubscription()
 	await coordinator.fundSubscription(subscriptionId, network.fundAmount)
-	console.log('A')
+
 	// Deploy randomizer
 	const randomizerCreator = config?.realRandomizer
 		? deployRealRandomizer
 		: deployFakeRandomizer
 	const randomizer = await randomizerCreator(
 		subscriptionId,
-		network['keyHash'],
 		vrfCoordinatorAddress,
+		network['keyHash'],
 	)
-	console.log('B')
 
 	// Initialize contract
 	const Game = await ethers.getContractFactory("Game")
 	const game = await Game.deploy(randomizer.address)
-	console.log('C')
 	
 	// Authorize randomizer to talk only to game
 	randomizer.setGame(game.address)
@@ -204,13 +202,16 @@ export const deployStaging = async () => {
 	const game = await Game.deploy(randomizer.address)
 	
 	// Authorize randomizer to talk only to game
-	randomizer.setGame(game.address)
-	
+	await randomizer.setGame(game.address)
+	console.log('A')
 	// Wait full deployment
     await game.deployTransaction.wait(1)
+    await randomizer.deployTransaction.wait(1)
+	console.log('B')
 
 	// Add consumer
 	await coordinator.addConsumer(subId, randomizer.address)
+	console.log('C')
 
 	return { game, coordinator, randomizer, owner }
 }
