@@ -40,7 +40,7 @@ async function main() {
 	await coordinator.addConsumer(config.subscriptionId, randomizer.address)
 	console.log(`✅ Added consumer`);
 	console.log('🚀 Randomizer: ', randomizer.address)
-	console.log('🚀 Game: ', randomizer.address)
+	console.log('🚀 Game: ', game.address)
 }
 
 main().catch((error) => {
