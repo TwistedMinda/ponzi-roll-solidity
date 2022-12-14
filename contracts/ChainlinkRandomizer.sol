@@ -10,7 +10,7 @@ contract Receiver {
 	function diceRolled(uint _resultId, uint _dieResult) public {}
 }
 
-contract ChainlinkRandomizer is VRFConsumerBaseV2, ConfirmedOwner {
+contract ChainlinkRandomizer is VRFConsumerBaseV2 {
     VRFCoordinatorV2Interface coordinator;
     uint32 callbackGasLimit = 50000000;
     uint16 requestConfirmations = 3;
@@ -24,7 +24,7 @@ contract ChainlinkRandomizer is VRFConsumerBaseV2, ConfirmedOwner {
 		uint64 id,
 		address addr,
 		bytes32 key
-		) VRFConsumerBaseV2(addr) ConfirmedOwner(msg.sender) {
+		) VRFConsumerBaseV2(addr) {
 		coordinator = VRFCoordinatorV2Interface(addr);
 		subId = id;
 		keyHash = key;

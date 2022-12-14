@@ -195,22 +195,30 @@ export const deployStaging = async () => {
 		owner
 	)
 
+	console.log('m')
 	// Deploy randomizer
 	const randomizer = await deployRealRandomizer(
 		subId,
 		coordinatorAddress,
 		network.keyHash
 	)
-
+	console.log('x')
+	
 	// Initialize contract
 	const Game = await ethers.getContractFactory("Game")
 	const game = await Game.deploy(randomizer.address)
+	console.log('o')
+	await game.deployed();
+	console.log('k')
+    await game.deployTransaction.wait(VERIFICATION_BLOCK_CONFIRMATIONS)
 	
 	// Authorize randomizer to talk only to game
 	await randomizer.setGame(game.address)
+	console.log('bb')
 
 	// Add consumer
 	await coordinator.addConsumer(subId, randomizer.address)
+	console.log('xx')
 	
 	return { game, coordinator, randomizer, owner }
 }

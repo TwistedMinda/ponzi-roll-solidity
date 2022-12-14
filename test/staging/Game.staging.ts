@@ -2,6 +2,7 @@ import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
 import { deployStaging, play, tryWinning } from "../utils";
 import { Game } from "../../typechain-types";
+import { assert } from "console";
 
 describe("Game", function () {
 
@@ -10,14 +11,11 @@ describe("Game", function () {
 		it('Generate random dice roll', async () => {
 			const { owner, game, randomizer, coordinator } = await deployStaging();
 
-			try {
-				await randomizer.rollDice({
-					gasLimit: 40000000
-				})
-			} catch (err) {
-				console.log(err)
-			}
-			expect(false).to.be.true
+			await randomizer.connect(owner).rollDice({
+				maxFeePerGas: 25000000,
+				maxPriorityFeePerGas: 25000000,
+			})
+			
 			/*
 			const { result } = await tryWinning(1, owner, game, randomizer, coordinator)
 			console.log(result)
