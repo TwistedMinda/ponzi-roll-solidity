@@ -98,7 +98,6 @@ describe("Game", function () {
 			const { owner, game, randomizer, VRFCoordinatorV2Mock } = await loadFixture(deploy);
 			const { result } = await tryWinning(1, owner, game, randomizer, VRFCoordinatorV2Mock)
 			expect(result).lessThanOrEqual(6)
-			console.log(result)
 			expect(result).above(0)
 		})
 
