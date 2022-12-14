@@ -40,7 +40,8 @@ export const playForWin = async (
 	randomizer: any,
 	coordinator: any,
 ) => {
-	await expect(await tryWinning(2, account, game, randomizer, coordinator)).to.be.true
+	const { isWin } = await tryWinning(2, account, game, randomizer, coordinator)
+	await expect(isWin).to.be.true
 }
 
 export const playForLoss = async (
@@ -49,7 +50,8 @@ export const playForLoss = async (
 	randomizer: any,
 	coordinator: any,
 ) => {
-	await expect(await tryWinning(1, account, game, randomizer, coordinator)).to.be.false
+	const { isWin } = await tryWinning(1, account, game, randomizer, coordinator)
+	await expect(isWin).to.be.false
 }
 
 export const tryWinning = async (
@@ -61,6 +63,7 @@ export const tryWinning = async (
 ) => {
 	let rollId: BigNumber = BigNumber.from("0")
 	let isWin = false
+	let result = 0
 	const captureRollId = (value: any) => {
 		rollId = value
 		return true
@@ -71,6 +74,7 @@ export const tryWinning = async (
 	}
 	const captureRes = (value: any) => {
 		//console.log('Die roll: ', value.toString(), '(expected ' + bet + ')')
+		result = value	
 		return true
 	}
 	const capture = (_: any) => {
@@ -79,7 +83,7 @@ export const tryWinning = async (
 	await expect(play(bet, game, account)).to.emit(game, 'RollStarted').withArgs(captureRollId)
 	await expect(coordinator.fulfillRandomWords(rollId, randomizer.address))
 		.to.emit(game, 'GameEnded').withArgs(account.address, captureWin, capture, captureRes)
-	return isWin
+	return { isWin, result }
 }
 
 export const play = async (

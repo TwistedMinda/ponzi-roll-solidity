@@ -94,9 +94,12 @@ describe("Game", function () {
 
 	describe('Randomization', () => {
 		
-		it('Generate random number', async () => {
+		it('Generate random dice roll', async () => {
 			const { owner, game, randomizer, VRFCoordinatorV2Mock } = await loadFixture(deploy);
-			await tryWinning(1, owner, game, randomizer, VRFCoordinatorV2Mock)
+			const { result } = await tryWinning(1, owner, game, randomizer, VRFCoordinatorV2Mock)
+			expect(result).lessThanOrEqual(6)
+			console.log(result)
+			expect(result).above(0)
 		})
 
 	})
