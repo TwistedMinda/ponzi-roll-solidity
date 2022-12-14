@@ -92,6 +92,15 @@ describe("Game", function () {
 		})
 	})
 
+	describe('Randomization', () => {
+		
+		it('Generate random number', async () => {
+			const { owner, game, randomizer, VRFCoordinatorV2Mock } = await loadFixture(deploy);
+			await tryWinning(1, owner, game, randomizer, VRFCoordinatorV2Mock)
+		})
+
+	})
+
 	describe('Errors', () => {
 
 		it("Nothing to claim", async () => {
