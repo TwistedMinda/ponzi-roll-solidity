@@ -32,13 +32,13 @@ struct LastRound {
     uint totalClaimed;
 }
 
-	struct RollStatus {
-        bool exists;
-        bool fulfilled;
-        uint dieResult;
-        uint dieBet;
-		address player;
-    }
+struct RollStatus {
+	bool exists;
+	bool fulfilled;
+	uint dieResult;
+	uint dieBet;
+	address player;
+}
 
 contract Game {
     event RollStarted(uint requestId);
