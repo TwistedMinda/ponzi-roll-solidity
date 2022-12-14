@@ -130,7 +130,7 @@ const createRandomizer = async (
 type DeployConfig = {
 	realRandomizer?: boolean;
 }
-export const deploy = async (config?: any) => {
+export const deploy = async (config?: DeployConfig) => {
 	const [owner, otherAccount] = await ethers.getSigners();
 
 	const chainId = 31337

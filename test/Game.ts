@@ -13,6 +13,17 @@ const readEvents = async (res: any) => {
 
 describe("Game", function () {
 
+	describe('Randomization', () => {
+		
+		it('Generate random dice roll', async () => {
+			const { owner, game, randomizer, VRFCoordinatorV2Mock } = await deploy({ realRandomizer: true });
+			const { result } = await tryWinning(1, owner, game, randomizer, VRFCoordinatorV2Mock)
+			expect(result).lessThanOrEqual(6)
+			expect(result).above(0)
+		})
+
+	})
+
 	describe('Workflow', () => {
 		
 		it("Should upgrade round", async () => {
@@ -90,17 +101,6 @@ describe("Game", function () {
 				expect(player.totalClaimed).equal(GAME_PRICE)
 			})
 		})
-	})
-
-	describe('Randomization', () => {
-		
-		it('Generate random dice roll', async () => {
-			const { owner, game, randomizer, VRFCoordinatorV2Mock } = await loadFixture(deploy);
-			const { result } = await tryWinning(1, owner, game, randomizer, VRFCoordinatorV2Mock)
-			expect(result).lessThanOrEqual(6)
-			expect(result).above(0)
-		})
-
 	})
 
 	describe('Errors', () => {
