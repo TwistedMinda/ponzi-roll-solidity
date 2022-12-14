@@ -149,7 +149,7 @@ export const deploy = async (config?: DeployConfig) => {
 	const subscriptionId = ethers.BigNumber.from("1")
 	await coordinator.createSubscription()
 	await coordinator.fundSubscription(subscriptionId, network.fundAmount)
-	
+	console.log('A')
 	// Deploy randomizer
 	const randomizerCreator = config?.realRandomizer
 		? deployRealRandomizer
@@ -159,10 +159,12 @@ export const deploy = async (config?: DeployConfig) => {
 		network['keyHash'],
 		vrfCoordinatorAddress,
 	)
+	console.log('B')
 
 	// Initialize contract
 	const Game = await ethers.getContractFactory("Game")
 	const game = await Game.deploy(randomizer.address)
+	console.log('C')
 	
 	// Authorize randomizer to talk only to game
 	randomizer.setGame(game.address)
