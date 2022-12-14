@@ -16,8 +16,7 @@ async function main() {
 	const contract = await Game.deploy(randomizer.address);
 	await contract.deployed();
 	console.log(`✅ Deployed contract ${contract.address}`);
-	await sleep(30 * 1000)
-
+    await contract.deployTransaction.wait(10)
 	await run("verify:verify", {
 		address: randomizer.address,
 		constructorArguments: [linkSubId, linkCoordinator, hashKey],

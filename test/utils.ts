@@ -165,11 +165,8 @@ export const deploy = async (config?: DeployConfig) => {
 	const game = await Game.deploy(randomizer.address)
 	
 	// Authorize randomizer to talk only to game
-	randomizer.setGame(game.address)
+	await randomizer.setGame(game.address)
 	
-	// Wait full deployment
-    await game.deployTransaction.wait(1)
-
 	// Add consumer
 	await coordinator.addConsumer(subscriptionId, randomizer.address)
 
@@ -204,9 +201,7 @@ export const deployStaging = async () => {
 	// Authorize randomizer to talk only to game
 	await randomizer.setGame(game.address)
 	console.log('A')
-	// Wait full deployment
-    await game.deployTransaction.wait(1)
-    await randomizer.deployTransaction.wait(1)
+	
 	console.log('B')
 
 	// Add consumer
