@@ -32,7 +32,7 @@ contract ChainlinkRandomizer is VRFConsumerBaseV2  {
 		admin = msg.sender;
 	}
 
-	function rollDice() isGame() public returns (uint) {
+	function rollDice() public returns (uint) {
 		uint requestId = coordinator.requestRandomWords(
             keyHash,
             subId,
