@@ -10,7 +10,6 @@ import {
 import { BigNumber } from "ethers";
 import { expect } from "chai";
 import VRF_COORDINATOR_ABI from "@chainlink/contracts/abi/v0.8/VRFCoordinatorV2.json"
-import LINK_TOKEN_ABI from "@chainlink/contracts/abi/v0.4/LinkToken.json"
 
 type CurrentRound = Awaited<ReturnType<Game['currentRound']>>
 type LastRound = Awaited<ReturnType<Game['lastRound']>>
@@ -177,10 +176,10 @@ export const deployStaging = async () => {
 	const [owner] = await ethers.getSigners()
 
 	const network = networkConfig[80001]
-	const subId = BigNumber.from(network["subscriptionId"])
+	const subId = BigNumber.from(network.subscriptionId)
 
 	// Retrieve existing coordinator
-	const coordinatorAddress = network["vrfCoordinator"]
+	const coordinatorAddress = network.vrfCoordinator
 	const coordinator = new ethers.Contract(
 		coordinatorAddress,
 		VRF_COORDINATOR_ABI,
@@ -191,7 +190,7 @@ export const deployStaging = async () => {
 	const randomizer = await deployRealRandomizer(
 		subId,
 		coordinatorAddress,
-		network["keyHash"]
+		network.keyHash
 	)
 
 	// Initialize contract
@@ -200,13 +199,10 @@ export const deployStaging = async () => {
 	
 	// Authorize randomizer to talk only to game
 	await randomizer.setGame(game.address)
-	console.log('A')
-	
-	console.log('B')
 
 	// Add consumer
+	console.log(subId)
 	await coordinator.addConsumer(subId, randomizer.address)
-	console.log('C')
-
+	console.log('Added consumer!')
 	return { game, coordinator, randomizer, owner }
 }
