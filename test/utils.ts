@@ -9,6 +9,8 @@ import {
 } from "./networks.config"
 import { BigNumber } from "ethers";
 import { expect } from "chai";
+import VRF_COORDINATOR_ABI from "@chainlink/contracts/abi/v0.8/VRFCoordinatorV2.json"
+import LINK_TOKEN_ABI from "@chainlink/contracts/abi/v0.4/LinkToken.json"
 
 type CurrentRound = Awaited<ReturnType<Game['currentRound']>>
 type LastRound = Awaited<ReturnType<Game['lastRound']>>
@@ -25,6 +27,8 @@ type GetPlayerCallback = (player: PlayerState) => Promise<any> | any
 
 export const ROUND_DURATION = 5 * 60
 export const GAME_PRICE = parseEther("0.001")
+
+export const sleep = (duration: number) => new Promise(resolve => setTimeout(resolve, duration))
 
 export const getInfo = async (game: Game, callback: GetInfoCallback) => callback({
 	current: await game.currentRound(),
@@ -100,31 +104,30 @@ export const claim = (game: Game, account: SignerWithAddress) => game.connect(ac
 	from: account.address,
 });
 
-const createRandomizer = async (
+const deployRealRandomizer = async (
 	subId: BigNumber,
 	hash: string,
-	coordinatorAddress: string,
-	real: boolean,
-	) => {
-	if (real) {
-		// Initilize Real randomizer
-		const RandomizerFactory = await ethers.getContractFactory("ChainlinkRandomizer")
-		const randomizer = await RandomizerFactory.deploy(
-			subId,
-			coordinatorAddress,
-			hash,
-		);
-		return randomizer
-	}
-	
-	// Initilize Fake randomizer
+	coordinatorAddress: string
+) => {
+	const RandomizerFactory = await ethers.getContractFactory("ChainlinkRandomizer")
+	return await RandomizerFactory.deploy(
+		subId,
+		coordinatorAddress,
+		hash,
+	)
+}
+
+const deployFakeRandomizer = async (
+	subId: BigNumber,
+	hash: string,
+	coordinatorAddress: string
+) => {
 	const ChainlinkRandomizerMock = await ethers.getContractFactory("ChainlinkRandomizerMock")
-	const randomizerMock = await ChainlinkRandomizerMock.deploy(
+	return await ChainlinkRandomizerMock.deploy(
 		subId,
         coordinatorAddress,
         hash,
-	);
-	return randomizerMock
+	)
 }
 
 type DeployConfig = {
@@ -133,31 +136,28 @@ type DeployConfig = {
 export const deploy = async (config?: DeployConfig) => {
 	const [owner, otherAccount] = await ethers.getSigners();
 
-	const chainId = 31337
-	const network = networkConfig['default']
+	const network = networkConfig.default
 
 	// Deploy fake Chainlink Coordinator
-	const BASE_FEE = "10000000000"
-	const GAS_PRICE_LINK = "100000000" // 0.000000001 LINK per gas
-	const VRFCoordinatorV2MockFactory = await ethers.getContractFactory("VRFCoordinatorV2Mock")
-	const VRFCoordinatorV2Mock = await VRFCoordinatorV2MockFactory.deploy(BASE_FEE, GAS_PRICE_LINK)
-	const vrfCoordinatorAddress = VRFCoordinatorV2Mock.address
+	const BASE_FEE = "100000000000000000"
+	const GAS_PRICE_LINK = "1000000000" // 0.000000001 LINK per gas
+	const MockCoordinatorFactory = await ethers.getContractFactory("VRFCoordinatorV2Mock")
+	const coordinator = await MockCoordinatorFactory.deploy(BASE_FEE, GAS_PRICE_LINK)
+	const vrfCoordinatorAddress = coordinator.address
 
-	// Create fake subscription
-	const fundAmount = "100000000000000000000000"
-	const transaction = await VRFCoordinatorV2Mock.createSubscription()
-	const transactionReceipt = await transaction.wait(1)
-	const topic = transactionReceipt.events
-		? transactionReceipt.events[0].topics[1]
-		: '0'
-	const subscriptionId = ethers.BigNumber.from(topic)
-	await VRFCoordinatorV2Mock.fundSubscription(subscriptionId, fundAmount)
+	// Fund fake subscription
+	const subscriptionId = ethers.BigNumber.from("1")
+	await coordinator.createSubscription()
+	await coordinator.fundSubscription(subscriptionId, network.fundAmount)
 	
-	const randomizer = await createRandomizer(
+	// Deploy randomizer
+	const randomizerCreator = config?.realRandomizer
+		? deployRealRandomizer
+		: deployFakeRandomizer
+	const randomizer = await randomizerCreator(
 		subscriptionId,
 		network['keyHash'],
 		vrfCoordinatorAddress,
-		config?.realRandomizer
 	)
 
 	// Initialize contract
@@ -171,9 +171,44 @@ export const deploy = async (config?: DeployConfig) => {
     await game.deployTransaction.wait(1)
 
 	// Add consumer
-	await VRFCoordinatorV2Mock.addConsumer(subscriptionId, randomizer.address)
+	await coordinator.addConsumer(subscriptionId, randomizer.address)
 
-	return { game, VRFCoordinatorV2Mock, randomizer, owner, otherAccount }
+	return { game, coordinator, randomizer, owner, otherAccount }
 }
 
-export const sleep = (duration: number) => new Promise(resolve => setTimeout(resolve, duration))
+export const deployStaging = async () => {
+	const [owner] = await ethers.getSigners()
+
+	const network = networkConfig[80001]
+	const subId = BigNumber.from(network["subscriptionId"])
+
+	// Retrieve existing coordinator
+	const coordinatorAddress = network["vrfCoordinator"]
+	const coordinator = new ethers.Contract(
+		coordinatorAddress,
+		VRF_COORDINATOR_ABI,
+		owner
+	)
+
+	// Deploy randomizer
+	const randomizer = await deployRealRandomizer(
+		subId,
+		coordinatorAddress,
+		network["keyHash"]
+	)
+
+	// Initialize contract
+	const Game = await ethers.getContractFactory("Game")
+	const game = await Game.deploy(randomizer.address)
+	
+	// Authorize randomizer to talk only to game
+	randomizer.setGame(game.address)
+	
+	// Wait full deployment
+    await game.deployTransaction.wait(1)
+
+	// Add consumer
+	await coordinator.addConsumer(subId, randomizer.address)
+
+	return { game, coordinator, randomizer, owner }
+}
