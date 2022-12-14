@@ -1,5 +1,5 @@
 import { ethers, run } from "hardhat";
-import { sleep } from "../test/utils";
+import { sleep, verify } from "../test/utils";
 import {
     VERIFICATION_BLOCK_CONFIRMATIONS,
     networkConfig,
@@ -19,21 +19,17 @@ async function main() {
         config.vrfCoordinator,
         config.keyHash,
 	);
+	await randomizer.deployed();
+	console.log(`✅ Randomizer deployed`);
 
 	const contract = await Game.deploy(randomizer.address);
 	await contract.deployed();
-	console.log(`✅ Deployed contract ${contract.address}`);
+	console.log(`✅ Game deployed`);
+	
     await contract.deployTransaction.wait(VERIFICATION_BLOCK_CONFIRMATIONS)
-	await run("verify:verify", {
-		address: randomizer.address,
-		constructorArguments: [config.subscriptionId, config.vrfCoordinator, config.keyHash],
-	})
+	await verify(randomizer.address, [config.subscriptionId, config.vrfCoordinator, config.keyHash])
+	await verify(contract.address, [randomizer.address])
 
-	await run("verify:verify", {
-		address: contract.address,
-		constructorArguments: [randomizer.address],
-	})
-	console.log(`✅ Contract verified`);
 	// Add consumer
 	const coordinator = new ethers.Contract(
 		config.vrfCoordinator,

@@ -28,6 +28,15 @@ export const ROUND_DURATION = 5 * 60
 export const GAME_PRICE = parseEther("0.001")
 
 export const sleep = (duration: number) => new Promise(resolve => setTimeout(resolve, duration))
+export const verify = async (address: string, args: any[]) => {
+	try {
+		await run("verify:verify", {
+			address: address,
+			constructorArguments: args,
+		})
+		console.log(`✅ ${address} verified`);
+	} catch (err) { console.warn(err) }
+}
 
 export const getInfo = async (game: Game, callback: GetInfoCallback) => callback({
 	current: await game.currentRound(),

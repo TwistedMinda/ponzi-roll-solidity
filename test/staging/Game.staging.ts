@@ -10,11 +10,14 @@ describe("Game", function () {
 		it('Generate random dice roll', async () => {
 			const { owner, game, randomizer, coordinator } = await deployStaging();
 
-			await randomizer.connect(owner).rollDice({ 
-				maxFeePerGas: 2500000000000,
-				maxPriorityFeePerGas: 2500000000000,
-			 })
-			//await play(1, game, owner)
+			try {
+				await randomizer.rollDice({
+					gasLimit: 40000000
+				})
+			} catch (err) {
+				console.log(err)
+			}
+			expect(false).to.be.true
 			/*
 			const { result } = await tryWinning(1, owner, game, randomizer, coordinator)
 			console.log(result)
