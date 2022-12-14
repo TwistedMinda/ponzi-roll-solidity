@@ -41,6 +41,7 @@ async function main() {
 		owner
 	)
 	await coordinator.addConsumer(config.subscriptionId, randomizer.address)
+	console.log(`✅ Added consumer`);
 }
 
 main().catch((error) => {

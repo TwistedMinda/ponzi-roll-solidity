@@ -201,8 +201,7 @@ export const deployStaging = async () => {
 	await randomizer.setGame(game.address)
 
 	// Add consumer
-	console.log(subId)
 	await coordinator.addConsumer(subId, randomizer.address)
-	console.log('Added consumer!')
+	
 	return { game, coordinator, randomizer, owner }
 }
