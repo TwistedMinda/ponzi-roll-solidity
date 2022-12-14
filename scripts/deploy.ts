@@ -10,8 +10,6 @@ import VRF_COORDINATOR_ABI from "@chainlink/contracts/abi/v0.8/VRFCoordinatorV2.
 async function main() {
 	const config = networkConfig[80001]
 	const [owner] = await ethers.getSigners()
-
-	const Game = await ethers.getContractFactory("Game");
 	
 	const ChainlinkRandomizer = await ethers.getContractFactory("ChainlinkRandomizer")
 	const randomizer = await ChainlinkRandomizer.deploy(
@@ -21,7 +19,8 @@ async function main() {
 	);
 	await randomizer.deployed();
 	console.log(`✅ Randomizer deployed`);
-
+	
+	const Game = await ethers.getContractFactory("Game");
 	const contract = await Game.deploy(randomizer.address);
 	await contract.deployed();
 	console.log(`✅ Game deployed`);
