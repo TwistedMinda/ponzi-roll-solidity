@@ -12,7 +12,7 @@ contract Receiver {
 
 contract ChainlinkRandomizer is VRFConsumerBaseV2, ConfirmedOwner {
     VRFCoordinatorV2Interface coordinator;
-    uint32 callbackGasLimit = 2500000;
+    uint32 callbackGasLimit = 50000000;
     uint16 requestConfirmations = 3;
     uint32 numWords = 1;
 	uint64 subId;

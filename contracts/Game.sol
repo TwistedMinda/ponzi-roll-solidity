@@ -88,9 +88,9 @@ contract Game {
         if (isWin) {
             // WIN
             
-			//++players[playerAddress].nbShares;
-            //++players[playerAddress].currentRoundShares;
-            //players[playerAddress].lastWinRound = currentRound.id;
+			++players[playerAddress].nbShares;
+            ++players[playerAddress].currentRoundShares;
+            players[playerAddress].lastWinRound = currentRound.id;
 			
             ++stats.totalWinners;
             transfer(payable(playerAddress), GAME_PRICE);
