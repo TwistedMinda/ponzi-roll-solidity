@@ -93,6 +93,7 @@ contract Game {
 			++players[playerAddress].nbShares;
             ++players[playerAddress].currentRoundShares;
             players[playerAddress].lastWinRound = currentRound.id;
+			
 			players[playerAddress].payback += GAME_PRICE;
             ++stats.totalWinners;
             //transfer(payable(playerAddress), GAME_PRICE);
@@ -113,10 +114,12 @@ contract Game {
         require(claimable > 0, "Nothing to claim");
         transfer(payable(msg.sender), claimable);
 
-        stats.totalClaimed += claimable;
-        lastRound.totalClaimed += claimable;
-        state.totalClaimed += claimable;
-        state.lastClaimedRound = currentRound.id;
+		if (claimable > state.payback) {
+			stats.totalClaimed += claimable;
+			lastRound.totalClaimed += claimable;
+			state.totalClaimed += claimable;
+			state.lastClaimedRound = currentRound.id;
+		}
 		state.payback = 0;
     }
 

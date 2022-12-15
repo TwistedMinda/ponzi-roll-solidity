@@ -101,13 +101,57 @@ describe("Game", function () {
 				expect(player.totalClaimed).equal(GAME_PRICE)
 			})
 		})
+
+		it("Can claim payback", async () => {
+			const { owner, game, randomizer, coordinator } = await loadFixture(deploy);
+
+			await getPlayer(owner.address, game, (player) => {
+				expect(player.nbShares).equal(0)
+				expect(player.totalClaimed).equal(0)
+				expect(player.payback).equal(0)
+			})
+			console.log('a')
+
+			await playForWin(owner, game, randomizer, coordinator)
+			console.log('b')
+
+			await getPlayer(owner.address, game, (player) => {
+				console.log(player)
+				expect(player.nbShares).equal(1)
+				expect(player.totalClaimed).equal(GAME_PRICE)
+				expect(player.payback).equal(GAME_PRICE)
+			})
+			console.log('c')
+
+			await claim(game, owner)
+			console.log('d')
+
+			await getPlayer(owner.address, game, (player) => {
+				expect(player.nbShares).equal(1)
+				expect(player.totalClaimed).equal(GAME_PRICE)
+				expect(player.payback).equal(0)
+			})
+		})
 	})
 
 	describe('Errors', () => {
 
-		it("Nothing to claim", async () => {
+		it("Can't claim until next round", async () => {
 			const { owner, game, randomizer, coordinator } = await loadFixture(deploy);
 			await playForWin(owner, game, randomizer, coordinator)
+
+			await getPlayer(owner.address, game, (player) => {
+				expect(player.totalClaimed).equal(0)
+				expect(player.payback).equal(GAME_PRICE)
+			})
+
+			await expect(claim(game, owner)).to.not.be.reverted
+			
+			await getPlayer(owner.address, game, (player) => {
+				console.log(player)
+				expect(player.totalClaimed).equal(0)
+				expect(player.payback).equal(0)
+			})
 			await expect(claim(game, owner)).to.be.revertedWith('Nothing to claim')
 		})
 	
