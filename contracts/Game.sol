@@ -81,7 +81,7 @@ contract Game {
 	function diceRolled(
         uint requestId,
         uint dieResult
-    ) isCoordinator public {
+	) public {
         require(rolls[requestId].exists, "Roll not found");
 
 		uint bet = rolls[requestId].dieBet;
