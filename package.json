@@ -4,11 +4,11 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "deploy": "npx hardhat run scripts/deploy.ts --network mumbai",
-    "deploy:optimism": "npx hardhat run scripts/deploy.ts --network optimismGoerli",
+    "deploy": "npx hardhat run scripts/deploy.ts --network fantom",
+    "deploy:matic": "npx hardhat run scripts/deploy.ts --network matic",
     "abi": "npx hardhat run scripts/extract-abi.ts",
     "test": "hardhat test test/local/*.ts",
-    "test-staging": "hardhat test test/staging/*.ts --network mumbai"
+    "test-staging": "hardhat test test/staging/*.ts --network fantom"
   },
   "devDependencies": {
     "@ethersproject/abi": "^5.4.7",

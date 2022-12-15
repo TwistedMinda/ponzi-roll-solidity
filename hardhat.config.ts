@@ -13,12 +13,17 @@ const config: HardhatUserConfig = {
 	mumbai: {
 		url: process.env.MUMBAI_DEV_URL,
 		accounts: [process.env.PRIVATE_KEY || ''],
+	},
+	fantom: {
+		url: process.env.FANTOM_DEV_URL,
+		accounts: [process.env.PRIVATE_KEY || ''],
 	}
   },
   etherscan: {
     apiKey: {
       optimisticGoerli: process.env.OPTIMISM_SCAN_KEY || '',
 	  polygonMumbai: process.env.MUMBAI_SCAN_KEY || '',
+	  fantomTestnet: process.env.FANTOM_SCAN_KEY || '',
     }
   }
 };

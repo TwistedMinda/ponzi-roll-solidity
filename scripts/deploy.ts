@@ -8,7 +8,7 @@ import {
 import VRF_COORDINATOR_ABI from "@chainlink/contracts/abi/v0.8/VRFCoordinatorV2.json"
 
 async function main() {
-	const config = networkConfig[80001]
+	const config = networkConfig[4002]
 	const [owner] = await ethers.getSigners()
 	
 	const ChainlinkRandomizer = await ethers.getContractFactory("ChainlinkRandomizer")

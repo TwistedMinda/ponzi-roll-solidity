@@ -106,7 +106,7 @@ export const play = async (
 ) => game.connect(account).play(bet, {
 	from: account.address,
 	value: amount,
-	gasPrice: 100000000000
+	gasPrice: 200000000000
 });
 
 export const claim = (game: Game, account: SignerWithAddress) => game.connect(account).claim({
@@ -185,7 +185,7 @@ export const deploy = async (config?: DeployConfig) => {
 export const deployStaging = async () => {
 	const [owner] = await ethers.getSigners()
 
-	const network = networkConfig[80001]
+	const network = networkConfig[4002]
 	const subId = BigNumber.from(network.subscriptionId)
 
 	// Retrieve existing coordinator
