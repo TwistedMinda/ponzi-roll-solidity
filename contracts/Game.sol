@@ -51,11 +51,13 @@ contract Game {
     LastRound public lastRound;
     Stats public stats;
 	ChainlinkRandomizer randomizer;
+	address coordinatorAddress;
 
-    constructor(address randomizerAddress) {
+    constructor(address randomizerAddress, address coordinator) {
         currentRound.id = 1;
         lastRound.timestamp = block.timestamp;
 		randomizer = ChainlinkRandomizer(randomizerAddress);
+		coordinatorAddress = coordinator;
     }
 
     function play(uint bet) public payable {
@@ -79,7 +81,7 @@ contract Game {
 	function diceRolled(
         uint requestId,
         uint dieResult
-    ) public {
+    ) isCoordinator public {
         require(rolls[requestId].exists, "Roll not found");
 
 		uint bet = rolls[requestId].dieBet;
@@ -147,8 +149,8 @@ contract Game {
         require(success, "Failed to send Ether");
 	}
 
-	modifier isRandomizer() {
-		require(msg.sender == address(randomizer), "Unknown caller");
+	modifier isCoordinator() {
+		require(msg.sender == coordinatorAddress, "Only coordinator is allowed");
 		_;    
 	}
 }

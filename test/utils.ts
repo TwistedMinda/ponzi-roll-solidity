@@ -170,7 +170,7 @@ export const deploy = async (config?: DeployConfig) => {
 
 	// Initialize contract
 	const Game = await ethers.getContractFactory("Game")
-	const game = await Game.deploy(randomizer.address)
+	const game = await Game.deploy(randomizer.address, vrfCoordinatorAddress)
 	
 	// Authorize randomizer to talk only to game
 	await randomizer.setGame(game.address)
@@ -204,7 +204,7 @@ export const deployStaging = async () => {
 	
 	// Initialize contract
 	const Game = await ethers.getContractFactory("Game")
-	const game = await Game.deploy(randomizer.address)
+	const game = await Game.deploy(randomizer.address, coordinatorAddress)
 	
 	// Authorize randomizer to talk only to game
 	await randomizer.setGame(game.address)
