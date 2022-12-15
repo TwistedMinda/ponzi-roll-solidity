@@ -1,10 +1,7 @@
-import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
 import { deployStaging, play, tryWinning } from "../utils";
-import { Game } from "../../typechain-types";
 import { assert } from "console";
 import { BigNumber } from "ethers";
-import { parseEther } from "ethers/lib/utils";
 
 describe("Game", function () {
 
@@ -28,14 +25,20 @@ describe("Game", function () {
 
 		it('Generate random dice roll', async () => {
 			const { owner, game, randomizer, coordinator } = await deployStaging();
-			
+
 			await new Promise(async (resolve, reject) => {
-				game.once("GameEnded", async (a, b, c, d) => {
-					console.log('Res:', d)
-					resolve(true)
+				game.once("GameEnded", async (_addr, _isWin, _dieBet, dieResult: BigNumber) => {
+					console.log('> Rolled dice:', dieResult)
+					try {
+						assert(dieResult.gte(0), "Result >= 0")
+						assert(dieResult.lte(6), "Result <= 6")
+						resolve(true)
+					} catch (e) {
+						reject(e)
+					}
 				})
 				await expect(play(1, game, owner)).to.emit(game, 'RollStarted').withArgs(captureRollId)
-				console.log('Roll', rollId)
+				console.log('> Roll id: ', rollId)
 			})
 		})
 	})
