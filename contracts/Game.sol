@@ -93,7 +93,6 @@ contract Game {
 			++players[playerAddress].nbShares;
             ++players[playerAddress].currentRoundShares;
             players[playerAddress].lastWinRound = currentRound.id;
-			
 			players[playerAddress].payback += GAME_PRICE;
             ++stats.totalWinners;
             //transfer(payable(playerAddress), GAME_PRICE);

@@ -3,13 +3,6 @@ import { expect } from "chai";
 import { parseEther } from "ethers/lib/utils";
 import { BigNumber } from "ethers";
 import { claim, deploy, GAME_PRICE, getInfo, getPlayer, play, playForLoss, playForWin, ROUND_DURATION, sleep, tryWinning } from "../utils";
-import { Game } from "../../typechain-types";
-
-const readEvents = async (res: any) => {
-	const trx = await res.wait(1)
-	for (const r of trx.events)
-		console.log(r.event, r.args)
-}
 
 describe("Game", function () {
 
@@ -110,25 +103,20 @@ describe("Game", function () {
 				expect(player.totalClaimed).equal(0)
 				expect(player.payback).equal(0)
 			})
-			console.log('a')
 
 			await playForWin(owner, game, randomizer, coordinator)
-			console.log('b')
 
 			await getPlayer(owner.address, game, (player) => {
-				console.log(player)
 				expect(player.nbShares).equal(1)
-				expect(player.totalClaimed).equal(GAME_PRICE)
+				expect(player.totalClaimed).equal(0)
 				expect(player.payback).equal(GAME_PRICE)
 			})
-			console.log('c')
-
-			await claim(game, owner)
-			console.log('d')
-
+			
+			await expect(claim(game, owner)).to.not.be.reverted
+			
 			await getPlayer(owner.address, game, (player) => {
 				expect(player.nbShares).equal(1)
-				expect(player.totalClaimed).equal(GAME_PRICE)
+				expect(player.totalClaimed).equal(0)
 				expect(player.payback).equal(0)
 			})
 		})
@@ -148,7 +136,6 @@ describe("Game", function () {
 			await expect(claim(game, owner)).to.not.be.reverted
 			
 			await getPlayer(owner.address, game, (player) => {
-				console.log(player)
 				expect(player.totalClaimed).equal(0)
 				expect(player.payback).equal(0)
 			})
