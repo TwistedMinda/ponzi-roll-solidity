@@ -18,6 +18,7 @@ struct PlayerState {
     uint nbShares;
     uint currentRoundShares;
     uint lastWinRound;
+	uint payback;
 }
 
 struct CurrentRound {
@@ -92,7 +93,7 @@ contract Game {
 			++players[playerAddress].nbShares;
             ++players[playerAddress].currentRoundShares;
             players[playerAddress].lastWinRound = currentRound.id;
-			
+			players[playerAddress].payback += GAME_PRICE;
             ++stats.totalWinners;
             //transfer(payable(playerAddress), GAME_PRICE);
         } else {
@@ -116,6 +117,7 @@ contract Game {
         lastRound.totalClaimed += claimable;
         state.totalClaimed += claimable;
         state.lastClaimedRound = currentRound.id;
+		state.payback = 0;
     }
 
     function increaseRoundIfNeeded() private {
@@ -133,15 +135,13 @@ contract Game {
     }
 
     function getClaimableAmount(address player) public view returns (uint) {
-        if (lastRound.winners == 0)
-            return 0;
         PlayerState storage state = players[player];
-        if (state.lastClaimedRound == currentRound.id)
-            return 0;
+        if (lastRound.winners == 0 || state.lastClaimedRound == currentRound.id)
+            return state.payback;
         uint nbShares = state.nbShares;
         if (state.currentRoundShares > 0 && state.lastWinRound == currentRound.id)
             nbShares -= state.currentRoundShares;
-        return (lastRound.benefits / lastRound.winners) * nbShares;
+        return ((lastRound.benefits / lastRound.winners) * nbShares) + state.payback;
     }
 
     function transfer(address payable _to, uint _amount) private {
