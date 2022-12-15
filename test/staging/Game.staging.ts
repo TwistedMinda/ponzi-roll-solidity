@@ -45,7 +45,6 @@ describe("Game", function () {
 					}
 				})
 				await expect(play(1, game, owner)).to.emit(game, 'RollStarted').withArgs(captureRollId)
-				console.log('> Roll id: ', rollId)
 			})
 		})
 	})
