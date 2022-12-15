@@ -9,6 +9,8 @@ const config: HardhatUserConfig = {
 	fantom: {
 		url: process.env.FANTOM_DEV_URL,
 		accounts: [process.env.PRIVATE_KEY || ''],
+		gas: 2100000,
+		gasPrice: 8000000000
 	}
   },
   etherscan: {

@@ -105,9 +105,7 @@ export const play = async (
 	amount = GAME_PRICE
 ) => game.connect(account).play(bet, {
 	from: account.address,
-	value: amount,
-	maxFeePerGas: 1000000000000,
-	maxPriorityFeePerGas: 3000000000
+	value: amount
 });
 
 export const claim = (game: Game, account: SignerWithAddress) => game.connect(account).claim({
