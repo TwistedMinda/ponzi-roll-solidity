@@ -12,7 +12,6 @@ describe("Game", function () {
 			return true
 		}
 		
-		/*
 		it('Prevent direct calls to "rollDice()"', async () => {
 			const { owner, game } = await deployStaging();
 
@@ -21,7 +20,6 @@ describe("Game", function () {
 
 			await expect(game.diceRolled(rollId, 2)).to.be.reverted
 		})
-		*/
 
 		it('Generate random dice roll', async () => {
 			const { owner, game, randomizer, coordinator } = await deployStaging();

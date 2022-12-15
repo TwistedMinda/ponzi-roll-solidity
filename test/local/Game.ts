@@ -133,5 +133,15 @@ describe("Game", function () {
 			await expect(play(2, game, owner, parseEther('0'))).to.be.revertedWith('Game price is not negociable')
 		})
 	})
+
+	describe('Security', async () => {
+
+		it("Cannot change game", async () => {
+			const { owner, otherAccount, game, randomizer } = await loadFixture(deploy);
+
+			await expect(randomizer.connect(owner).setGame(game.address)).to.not.be.reverted
+			await expect(randomizer.connect(otherAccount).setGame(game.address)).to.be.reverted
+		})
+	})
 	
 })

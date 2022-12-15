@@ -11,13 +11,12 @@ contract Receiver {
 }
 
 contract ChainlinkRandomizer is VRFConsumerBaseV2, ConfirmedOwner {
-    VRFCoordinatorV2Interface coordinator;
+    VRFCoordinatorV2Interface public coordinator;
     uint32 callbackGasLimit = 2500000;
     uint16 requestConfirmations = 1;
     uint32 numWords = 1;
 	uint64 subId;
 	bytes32 keyHash;
-	address admin;
 	Receiver game;
 
 	constructor(
@@ -28,7 +27,6 @@ contract ChainlinkRandomizer is VRFConsumerBaseV2, ConfirmedOwner {
 		coordinator = VRFCoordinatorV2Interface(addr);
 		subId = id;
 		keyHash = key;
-		admin = msg.sender;
 	}
 
 	function rollDice() public returns (uint) {
@@ -49,18 +47,8 @@ contract ChainlinkRandomizer is VRFConsumerBaseV2, ConfirmedOwner {
 		game.diceRolled(requestId, (_randomWords[0] % 6) + 1);
     }
 	
-	function setGame(address _game) isOwner() public {
+	function setGame(address _game) onlyOwner() public {
 		game = Receiver(_game);
-	}
-
-	modifier isGame() {
-		require(msg.sender == address(game), "Unknown caller");
-		_;    
-	}
-
-	modifier isOwner() {
-		require(msg.sender == admin, "Must use be owner");
-		_;    
 	}
 
 }
