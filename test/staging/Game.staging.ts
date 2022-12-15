@@ -19,7 +19,14 @@ describe("Game", function () {
 			}
 			await expect(play(1, game, owner)).to.emit(game, 'RollStarted').withArgs(captureRollId)
 			console.log('Result', rollId)
-			
+			/*await new Promise(async (resolve, reject) => {
+				game.once("GameEnded", async () => {
+					resolve(true)
+				})
+				await expect(play(1, game, owner)).to.emit(game, 'RollStarted').withArgs(captureRollId)
+				console.log('Result', rollId)
+			})*/
+
 			/*
 			const { result } = await tryWinning(1, owner, game, randomizer, coordinator)
 			expect(result).lessThanOrEqual(6)
