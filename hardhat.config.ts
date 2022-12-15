@@ -23,7 +23,7 @@ const config: HardhatUserConfig = {
     apiKey: {
       optimisticGoerli: process.env.OPTIMISM_SCAN_KEY || '',
 	  polygonMumbai: process.env.MUMBAI_SCAN_KEY || '',
-	  fantomTestnet: process.env.FANTOM_SCAN_KEY || '',
+	  ftmTestnet: process.env.FANTOM_SCAN_KEY || '',
     }
   }
 };
