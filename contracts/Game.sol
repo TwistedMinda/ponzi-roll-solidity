@@ -81,7 +81,7 @@ contract Game {
 	function diceRolled(
         uint requestId,
         uint dieResult
-	) public {
+    ) public {
         require(rolls[requestId].exists, "Roll not found");
 
 		uint bet = rolls[requestId].dieBet;
@@ -92,7 +92,7 @@ contract Game {
 			++players[playerAddress].nbShares;
             ++players[playerAddress].currentRoundShares;
             players[playerAddress].lastWinRound = currentRound.id;
-
+			
             ++stats.totalWinners;
             //transfer(payable(playerAddress), GAME_PRICE);
         } else {
