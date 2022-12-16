@@ -93,8 +93,10 @@ export const tryWinning = async (
 		return true
 	}
 	await expect(play(bet, game, account)).to.emit(game, 'RollStarted').withArgs(captureRollId)
+	expect(await game.getPendingBet(account.address)).gt(0).and.lt(6)
 	await expect(coordinator.fulfillRandomWords(rollId, randomizer.address))
 		.to.emit(game, 'GameEnded').withArgs(account.address, captureWin, capture, captureRes)
+	expect(await game.getPendingBet(account.address)).equal(0)
 	return { isWin, result }
 }
 

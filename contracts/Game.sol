@@ -19,7 +19,7 @@ struct PlayerState {
     uint currentRoundShares;
     uint lastWinRound;
 	uint payback;
-	uint lastRollId;
+	uint pendingRollId;
 }
 
 struct CurrentRound {
@@ -36,7 +36,6 @@ struct LastRound {
 
 struct RollStatus {
 	bool exists;
-	uint8 dieResult;
 	uint8 dieBet;
 	address player;
 }
@@ -69,11 +68,10 @@ contract Game {
 		uint requestId = randomizer.rollDice(address(this));
         rolls[requestId] = RollStatus({
 			player: address(msg.sender),
-            dieResult: 0,
 			dieBet: bet,
             exists: true
         });
-		players[msg.sender].lastRollId = requestId;
+		players[msg.sender].pendingRollId = requestId;
 		emit RollStarted(requestId);
     }
 
@@ -99,6 +97,7 @@ contract Game {
             currentRound.benefits += GAME_PRICE;
         }
         ++stats.totalRolls;
+		players[playerAddress].pendingRollId = 0;
         emit GameEnded(playerAddress, isWin, bet, dieResult);
 	}
 
@@ -135,14 +134,12 @@ contract Game {
     }
 
     function getPendingBet(address player) public view returns (uint8) {
-        PlayerState storage state = players[player];
-		uint requestId = state.lastRollId;
+		uint requestId = players[player].pendingRollId;
 		if (requestId == 0 || !rolls[requestId].exists) {
 			return 0;
 		}
 		return rolls[requestId].dieBet;
     }
-
 
     function getClaimableAmount(address player) public view returns (uint) {
         PlayerState storage state = players[player];
