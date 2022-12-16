@@ -10,7 +10,7 @@ describe("Game", function () {
 		
 		it('Generate random dice roll', async () => {
 			const { owner, game, randomizer, coordinator } = await deploy({ realRandomizer: true });
-			const { result } = await tryWinning(1, owner, game, randomizer, coordinator)
+			const { result } = await tryWinning(1, owner, game, randomizer, coordinator)
 			expect(result).lessThanOrEqual(6)
 			expect(result).above(0)
 		})
@@ -180,7 +180,7 @@ describe("Game", function () {
 			try {
 				await game.connect(owner).diceRolled(rollId, 2)
 				success = true
-			} catch (err: any) {}
+			} catch (err: any) { console.log(err) }
 			expect(success).to.be.false
 			
 		})

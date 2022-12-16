@@ -34,7 +34,7 @@ describe("Game", function () {
 		it('Generate random dice roll', async () => {
 			const { owner, game, randomizer, coordinator } = await deployStaging();
 
-			await new Promise(async (resolve, reject) => {
+			await new Promise((resolve, reject) => {
 				game.once("GameEnded", async (_addr, _isWin, _dieBet, dieResult: BigNumber) => {
 					try {
 						assert(dieResult.gte(0), "Result >= 0")
@@ -44,7 +44,7 @@ describe("Game", function () {
 						reject(e)
 					}
 				})
-				await expect(play(1, game, owner)).to.emit(game, 'RollStarted').withArgs(captureRollId)
+				expect(play(1, game, owner)).to.emit(game, 'RollStarted').withArgs(captureRollId)
 			})
 		})
 	})
