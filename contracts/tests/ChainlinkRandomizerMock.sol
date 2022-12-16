@@ -17,7 +17,8 @@ contract ChainlinkRandomizerMock is ChainlinkRandomizer  {
         uint256 requestId,
         uint256[] memory /*_randomWords*/
     ) virtual internal override {
-		game.diceRolled(requestId, 2);
+		Receiver receiver = Receiver(receivers[requestId]);
+		receiver.diceRolled(requestId, 2);
     }
 
 }

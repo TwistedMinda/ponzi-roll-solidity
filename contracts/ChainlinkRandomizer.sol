@@ -17,7 +17,8 @@ contract ChainlinkRandomizer is VRFConsumerBaseV2, ConfirmedOwner {
     uint32 numWords = 1;
 	uint64 subId;
 	bytes32 keyHash;
-	Receiver game;
+
+	mapping (uint => address) receivers;
 
 	constructor(
 		uint64 id,
@@ -29,7 +30,7 @@ contract ChainlinkRandomizer is VRFConsumerBaseV2, ConfirmedOwner {
 		keyHash = key;
 	}
 
-	function rollDice() public returns (uint) {
+	function rollDice(address game) public returns (uint) {
 		uint requestId = coordinator.requestRandomWords(
             keyHash,
             subId,
@@ -37,6 +38,7 @@ contract ChainlinkRandomizer is VRFConsumerBaseV2, ConfirmedOwner {
             callbackGasLimit,
             numWords
         );
+		receivers[requestId] = game;
 		return requestId;
     }
 
@@ -44,11 +46,8 @@ contract ChainlinkRandomizer is VRFConsumerBaseV2, ConfirmedOwner {
         uint256 requestId,
         uint256[] memory _randomWords
     ) virtual internal override {
-		game.diceRolled(requestId, (_randomWords[0] % 6) + 1);
+		Receiver receiver = Receiver(receivers[requestId]);
+		receiver.diceRolled(requestId, (_randomWords[0] % 6) + 1);
     }
-	
-	function setGame(address _game) onlyOwner() public {
-		game = Receiver(_game);
-	}
 
 }

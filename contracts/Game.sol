@@ -68,7 +68,7 @@ contract Game {
         increaseRoundIfNeeded();
         if (currentRound.id > players[msg.sender].lastWinRound)
             players[msg.sender].currentRoundShares = 0;
-		uint requestId = randomizer.rollDice();
+		uint requestId = randomizer.rollDice(address(this));
         rolls[requestId] = RollStatus({
 			player: address(msg.sender),
             dieResult: 0,

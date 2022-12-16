@@ -1,4 +1,4 @@
-import { ChainlinkRandomizer, Game } from "../typechain-types";
+import { ChainlinkRandomizer, Game, VRFCoordinatorV2Mock } from "../typechain-types";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { parseEther } from "ethers/lib/utils";
 import { ethers, network, run } from "hardhat";
@@ -71,7 +71,7 @@ export const tryWinning = async (
 	account: SignerWithAddress,
 	game: Game,
 	randomizer: any,
-	coordinator: any,
+	coordinator: VRFCoordinatorV2Mock,
 ) => {
 	let rollId: BigNumber = BigNumber.from("0")
 	let isWin = false
@@ -172,9 +172,6 @@ export const deploy = async (config?: DeployConfig) => {
 	const Game = await ethers.getContractFactory("Game")
 	const game = await Game.deploy(randomizer.address, vrfCoordinatorAddress)
 	
-	// Authorize randomizer to talk only to game
-	await randomizer.setGame(game.address)
-	
 	// Add consumer
 	await coordinator.addConsumer(subscriptionId, randomizer.address)
 
@@ -206,9 +203,6 @@ export const deployStaging = async () => {
 	const Game = await ethers.getContractFactory("Game")
 	const game = await Game.deploy(randomizer.address, coordinatorAddress)
 	
-	// Authorize randomizer to talk only to game
-	await randomizer.setGame(game.address)
-
 	// Add consumer
 	await coordinator.addConsumer(subId, randomizer.address)
 	

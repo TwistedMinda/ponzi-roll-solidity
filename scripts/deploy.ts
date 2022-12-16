@@ -24,8 +24,6 @@ async function main() {
 	const game = await Game.deploy(randomizer.address, config.vrfCoordinator);
 	await game.deployed();
 	console.log(`✅ Game deployed`);
-	await randomizer.setGame(game.address);
-	console.log('✅ Attached randomizer to Game')
 	
     await game.deployTransaction.wait(VERIFICATION_BLOCK_CONFIRMATIONS)
 	await verify(randomizer.address, [config.subscriptionId, config.vrfCoordinator, config.keyHash])

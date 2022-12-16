@@ -166,12 +166,26 @@ describe("Game", function () {
 	})
 
 	describe('Security', async () => {
+		let rollId: BigNumber = BigNumber.from("0")
+		const captureRollId = (value: any) => {
+			rollId = value
+			return true
+		}
 
-		it("Cannot change game", async () => {
-			const { owner, otherAccount, game, randomizer } = await loadFixture(deploy);
+		it('Prevent direct calls to "diceRolled()"', async () => {
+			const { owner, game } = await loadFixture(deploy);
 
-			await expect(randomizer.connect(owner).setGame(game.address)).to.not.be.reverted
-			await expect(randomizer.connect(otherAccount).setGame(game.address)).to.be.reverted
+			await expect(play(1, game, owner)).to.emit(game, 'RollStarted').withArgs(captureRollId)
+			const res = await game.connect(owner).diceRolled(rollId, 2)
+			let success = false
+			try {
+				await res.wait(1)
+				success = true
+			} catch (err: any) {
+				expect(err.reason === 'transaction_failed')
+			}
+			expect(success).to.be.false
+			
 		})
 	})
 	
