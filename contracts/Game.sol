@@ -19,6 +19,7 @@ struct PlayerState {
     uint currentRoundShares;
     uint lastWinRound;
 	uint payback;
+	uint lastRollId;
 }
 
 struct CurrentRound {
@@ -35,9 +36,8 @@ struct LastRound {
 
 struct RollStatus {
 	bool exists;
-	bool fulfilled;
-	uint dieResult;
-	uint dieBet;
+	uint8 dieResult;
+	uint8 dieBet;
 	address player;
 }
 
@@ -59,7 +59,7 @@ contract Game {
 		randomizer = ChainlinkRandomizer(randomizerAddress);
     }
 
-    function play(uint bet) public payable {
+    function play(uint8 bet) public payable {
         require(msg.value == GAME_PRICE, "Game price is not negociable");
         if (getClaimableAmount(msg.sender) > 0)
             claim();
@@ -71,9 +71,9 @@ contract Game {
 			player: address(msg.sender),
             dieResult: 0,
 			dieBet: bet,
-            exists: true,
-            fulfilled: false
+            exists: true
         });
+		players[msg.sender].lastRollId = requestId;
 		emit RollStarted(requestId);
     }
 
@@ -133,6 +133,16 @@ contract Game {
         lastRound.timestamp = block.timestamp;
         ++currentRound.id;
     }
+
+    function getPendingBet(address player) public view returns (uint8) {
+        PlayerState storage state = players[player];
+		uint requestId = state.lastRollId;
+		if (requestId == 0 || !rolls[requestId].exists) {
+			return 0;
+		}
+		return rolls[requestId].dieBet;
+    }
+
 
     function getClaimableAmount(address player) public view returns (uint) {
         PlayerState storage state = players[player];
