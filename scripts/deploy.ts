@@ -21,13 +21,13 @@ async function main() {
 	console.log(`✅ Randomizer deployed`);
 	
 	const Game = await ethers.getContractFactory("Game");
-	const game = await Game.deploy(randomizer.address, config.vrfCoordinator);
+	const game = await Game.deploy(randomizer.address);
 	await game.deployed();
 	console.log(`✅ Game deployed`);
 	
     await game.deployTransaction.wait(VERIFICATION_BLOCK_CONFIRMATIONS)
 	await verify(randomizer.address, [config.subscriptionId, config.vrfCoordinator, config.keyHash])
-	await verify(game.address, [randomizer.address, config.vrfCoordinator])
+	await verify(game.address, [randomizer.address])
 
 	// Add consumer
 	const coordinator = new ethers.Contract(

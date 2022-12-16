@@ -176,14 +176,11 @@ describe("Game", function () {
 			const { owner, game } = await loadFixture(deploy);
 
 			await expect(play(1, game, owner)).to.emit(game, 'RollStarted').withArgs(captureRollId)
-			const res = await game.connect(owner).diceRolled(rollId, 2)
 			let success = false
 			try {
-				await res.wait(1)
+				await game.connect(owner).diceRolled(rollId, 2)
 				success = true
-			} catch (err: any) {
-				expect(err.reason === 'transaction_failed')
-			}
+			} catch (err: any) {}
 			expect(success).to.be.false
 			
 		})

@@ -152,6 +152,7 @@ export const deploy = async (config?: DeployConfig) => {
 	const MockCoordinatorFactory = await ethers.getContractFactory("VRFCoordinatorV2Mock")
 	const coordinator = await MockCoordinatorFactory.deploy(BASE_FEE, GAS_PRICE_LINK)
 	const vrfCoordinatorAddress = coordinator.address
+	console.log(vrfCoordinatorAddress)
 
 	// Fund fake subscription
 	const subscriptionId = ethers.BigNumber.from("1")
@@ -170,7 +171,7 @@ export const deploy = async (config?: DeployConfig) => {
 
 	// Initialize contract
 	const Game = await ethers.getContractFactory("Game")
-	const game = await Game.deploy(randomizer.address, vrfCoordinatorAddress)
+	const game = await Game.deploy(randomizer.address)
 	
 	// Add consumer
 	await coordinator.addConsumer(subscriptionId, randomizer.address)
@@ -201,7 +202,7 @@ export const deployStaging = async () => {
 	
 	// Initialize contract
 	const Game = await ethers.getContractFactory("Game")
-	const game = await Game.deploy(randomizer.address, coordinatorAddress)
+	const game = await Game.deploy(randomizer.address)
 	
 	// Add consumer
 	await coordinator.addConsumer(subId, randomizer.address)
