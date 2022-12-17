@@ -9,7 +9,7 @@
     "abi": "npx hardhat run scripts/extract-abi.ts",
     "test": "hardhat test test/local/*.ts",
     "test-staging": "hardhat test test/staging/*.ts --network fantom",
-    "configure-husky": "npx husky install && npx husky add .husky/pre-commit \"npx --no-install lint-staged --allow-empty\""
+    "configure-husky": "npx husky install && npx husky add .husky/pre-commit \"npx --no-install lint-staged\""
   },
   "devDependencies": {
     "@ethersproject/abi": "^5.4.7",
