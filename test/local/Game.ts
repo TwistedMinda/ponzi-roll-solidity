@@ -1,18 +1,17 @@
-import { time, loadFixture } from '@nomicfoundation/hardhat-network-helpers';
+import { loadFixture, time } from '@nomicfoundation/hardhat-network-helpers';
 import { expect } from 'chai';
 import { parseEther } from 'ethers/lib/utils';
 import { BigNumber } from 'ethers';
 import {
+  GAME_PRICE,
+  ROUND_DURATION,
   claim,
   deploy,
-  GAME_PRICE,
   getInfo,
   getPlayer,
   play,
   playForLoss,
   playForWin,
-  ROUND_DURATION,
-  sleep,
   tryWinning
 } from '../utils';
 
@@ -47,7 +46,6 @@ describe('Game', function () {
         timeSnap = last.timestamp;
       });
 
-      await time.increase(ROUND_DURATION);
       await playForLoss(owner, game, randomizer, coordinator);
 
       getInfo(game, ({ current, last }) => {

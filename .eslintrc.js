@@ -4,16 +4,30 @@ module.exports = {
     'plugin:@typescript-eslint/recommended',
     'prettier'
   ],
+  env: {
+    node: true
+  },
   parser: '@typescript-eslint/parser',
-  plugins: ['@typescript-eslint'],
+  plugins: ['@typescript-eslint', 'unused-imports'],
   root: true,
-  ignorePatterns: ['.eslintrc.js'],
+  ignorePatterns: ['config-overrides.js', 'build'],
   rules: {
-    '@typescript-eslint/no-unused-vars': [
+    'no-unused-vars': 'off',
+    'unused-imports/no-unused-imports': 'error',
+    '@typescript-eslint/no-unused-vars': 'off',
+    'unused-imports/no-unused-vars': [
       'warn',
       {
-        argsIgnorePattern: '^_',
-        varsIgnorePattern: '^_'
+        vars: 'all',
+        varsIgnorePattern: '^_',
+        args: 'after-used',
+        argsIgnorePattern: '^_'
+      }
+    ],
+    'sort-imports': [
+      'error',
+      {
+        ignoreDeclarationSort: true
       }
     ],
     '@typescript-eslint/no-explicit-any': 'off',
