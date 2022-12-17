@@ -46,8 +46,10 @@
     "@chainlink/contracts": "^0.5.1"
   },
   "lint-staged": {
-    "**/*.{css,js,jsx,ts,tsx,json}": [
-      "eslint . --fix",
+    "**/*.{js,jsx,ts,tsx}": [
+      "eslint . --fix --max-warnings=0"
+    ],
+    "**/*.{scss,css,js,jsx,ts,tsx,json}": [
       "prettier --write ."
     ]
   },

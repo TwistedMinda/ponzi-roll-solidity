@@ -1,16 +1,8 @@
-import {
-  ChainlinkRandomizer,
-  Game,
-  VRFCoordinatorV2Mock
-} from '../typechain-types';
+import { Game, VRFCoordinatorV2Mock } from '../typechain-types';
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 import { parseEther } from 'ethers/lib/utils';
-import { ethers, network, run } from 'hardhat';
-import {
-  VERIFICATION_BLOCK_CONFIRMATIONS,
-  networkConfig,
-  developmentChains
-} from './networks.config';
+import { ethers, run } from 'hardhat';
+import { networkConfig } from './networks.config';
 import { BigNumber } from 'ethers';
 import { expect } from 'chai';
 import VRF_COORDINATOR_ABI from '@chainlink/contracts/abi/v0.8/VRFCoordinatorV2.json';

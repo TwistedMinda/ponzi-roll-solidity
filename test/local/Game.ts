@@ -193,9 +193,7 @@ describe('Game', function () {
     });
 
     it('Entry price respected', async () => {
-      const { owner, game, randomizer, coordinator } = await loadFixture(
-        deploy
-      );
+      const { owner, game } = await loadFixture(deploy);
       await expect(play(2, game, owner, parseEther('1'))).to.be.revertedWith(
         'Game price is not negociable'
       );

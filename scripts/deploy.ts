@@ -1,5 +1,5 @@
-import { ethers, run } from 'hardhat';
-import { sleep, verify } from '../test/utils';
+import { ethers } from 'hardhat';
+import { verify } from '../test/utils';
 import {
   VERIFICATION_BLOCK_CONFIRMATIONS,
   networkConfig

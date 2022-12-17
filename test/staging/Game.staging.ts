@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { deployStaging, play, tryWinning } from '../utils';
+import { deployStaging, play } from '../utils';
 import { assert } from 'console';
 import { BigNumber } from 'ethers';
 
@@ -31,7 +31,7 @@ describe('Game', function () {
 
   describe('Randomization', () => {
     it('Generate random dice roll', async () => {
-      const { owner, game, randomizer, coordinator } = await deployStaging();
+      const { owner, game } = await deployStaging();
 
       await new Promise((resolve, reject) => {
         game.once(
