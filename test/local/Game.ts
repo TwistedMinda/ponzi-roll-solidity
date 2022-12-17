@@ -171,6 +171,7 @@ describe('Game', function () {
         expect(player.totalClaimed).equal(0);
         expect(player.payback).equal(0);
       });
+
       await expect(claim(game, owner)).to.be.revertedWith('Nothing to claim');
     });
 
