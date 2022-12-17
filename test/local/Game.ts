@@ -1,7 +1,7 @@
-import { time, loadFixture } from "@nomicfoundation/hardhat-network-helpers";
-import { expect } from "chai";
-import { parseEther } from "ethers/lib/utils";
-import { BigNumber } from "ethers";
+import { time, loadFixture } from '@nomicfoundation/hardhat-network-helpers';
+import { expect } from 'chai';
+import { parseEther } from 'ethers/lib/utils';
+import { BigNumber } from 'ethers';
 import {
   claim,
   deploy,
@@ -13,14 +13,14 @@ import {
   playForWin,
   ROUND_DURATION,
   sleep,
-  tryWinning,
-} from "../utils";
+  tryWinning
+} from '../utils';
 
-describe("Game", function () {
-  describe("Randomization", () => {
-    it("Generate random dice roll", async () => {
+describe('Game', function () {
+  describe('Randomization', () => {
+    it('Generate random dice roll', async () => {
       const { owner, game, randomizer, coordinator } = await deploy({
-        realRandomizer: true,
+        realRandomizer: true
       });
       const { result } = await tryWinning(
         1,
@@ -34,8 +34,8 @@ describe("Game", function () {
     });
   });
 
-  describe("Workflow", () => {
-    it("Should upgrade round", async () => {
+  describe('Workflow', () => {
+    it('Should upgrade round', async () => {
       const { owner, game, randomizer, coordinator } = await loadFixture(
         deploy
       );
@@ -56,7 +56,7 @@ describe("Game", function () {
       });
     });
 
-    it("Winning updates correctly", async () => {
+    it('Winning updates correctly', async () => {
       const { owner, game, randomizer, coordinator } = await loadFixture(
         deploy
       );
@@ -69,7 +69,7 @@ describe("Game", function () {
       });
     });
 
-    it("Losing updates correctly", async () => {
+    it('Losing updates correctly', async () => {
       const { owner, game, randomizer, coordinator } = await loadFixture(
         deploy
       );
@@ -81,7 +81,7 @@ describe("Game", function () {
       );
     });
 
-    it("Can claim", async () => {
+    it('Can claim', async () => {
       const { owner, game, randomizer, coordinator } = await loadFixture(
         deploy
       );
@@ -100,8 +100,8 @@ describe("Game", function () {
     });
   });
 
-  describe("Player", () => {
-    it("Stats increasing", async () => {
+  describe('Player', () => {
+    it('Stats increasing', async () => {
       const { otherAccount, game, randomizer, coordinator } = await loadFixture(
         deploy
       );
@@ -124,7 +124,7 @@ describe("Game", function () {
       });
     });
 
-    it("Can claim payback", async () => {
+    it('Can claim payback', async () => {
       const { owner, game, randomizer, coordinator } = await loadFixture(
         deploy
       );
@@ -153,7 +153,7 @@ describe("Game", function () {
     });
   });
 
-  describe("Errors", () => {
+  describe('Errors', () => {
     it("Can't claim until next round", async () => {
       const { owner, game, randomizer, coordinator } = await loadFixture(
         deploy
@@ -171,15 +171,15 @@ describe("Game", function () {
         expect(player.totalClaimed).equal(0);
         expect(player.payback).equal(0);
       });
-      await expect(claim(game, owner)).to.be.revertedWith("Nothing to claim");
+      await expect(claim(game, owner)).to.be.revertedWith('Nothing to claim');
     });
 
-    it("No shares", async () => {
+    it('No shares', async () => {
       const { owner, game } = await loadFixture(deploy);
-      await expect(claim(game, owner)).to.be.revertedWith("You have no share");
+      await expect(claim(game, owner)).to.be.revertedWith('You have no share');
     });
 
-    it("Already claimed", async () => {
+    it('Already claimed', async () => {
       const { owner, game, randomizer, coordinator } = await loadFixture(
         deploy
       );
@@ -189,28 +189,28 @@ describe("Game", function () {
       await playForLoss(owner, game, randomizer, coordinator);
       await claim(game, owner);
       await expect(claim(game, owner)).to.be.revertedWith(
-        "You already claimed for this round"
+        'You already claimed for this round'
       );
     });
 
-    it("Entry price respected", async () => {
+    it('Entry price respected', async () => {
       const { owner, game, randomizer, coordinator } = await loadFixture(
         deploy
       );
-      await expect(play(2, game, owner, parseEther("1"))).to.be.revertedWith(
-        "Game price is not negociable"
+      await expect(play(2, game, owner, parseEther('1'))).to.be.revertedWith(
+        'Game price is not negociable'
       );
-      await expect(play(2, game, owner, parseEther("0.01"))).to.be.revertedWith(
-        "Game price is not negociable"
+      await expect(play(2, game, owner, parseEther('0.01'))).to.be.revertedWith(
+        'Game price is not negociable'
       );
-      await expect(play(2, game, owner, parseEther("0"))).to.be.revertedWith(
-        "Game price is not negociable"
+      await expect(play(2, game, owner, parseEther('0'))).to.be.revertedWith(
+        'Game price is not negociable'
       );
     });
   });
 
-  describe("Security", async () => {
-    let rollId: BigNumber = BigNumber.from("0");
+  describe('Security', async () => {
+    let rollId: BigNumber = BigNumber.from('0');
     const captureRollId = (value: any) => {
       rollId = value;
       return true;
@@ -220,7 +220,7 @@ describe("Game", function () {
       const { owner, game } = await loadFixture(deploy);
 
       await expect(play(1, game, owner))
-        .to.emit(game, "RollStarted")
+        .to.emit(game, 'RollStarted')
         .withArgs(captureRollId);
       let success = false;
       try {

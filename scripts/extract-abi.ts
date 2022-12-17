@@ -1,12 +1,12 @@
-import fs from "fs";
-import path from "path";
+import fs from 'fs';
+import path from 'path';
 
 export const extractABI = (name: string, destiation?: string) => {
   const dir = path.resolve(
     __dirname,
     `../artifacts/contracts/${name}.sol/${name}.json`
   );
-  const file = fs.readFileSync(dir, "utf8");
+  const file = fs.readFileSync(dir, 'utf8');
   const json = JSON.parse(file);
   const abi = JSON.stringify(json.abi);
   const content = `
@@ -16,11 +16,11 @@ export const CONTRACT_INTERFACE = (
 	`;
   if (destiation) {
     fs.writeFileSync(destiation, content);
-    console.log("✅ Extracted ABI to " + destiation);
+    console.log('✅ Extracted ABI to ' + destiation);
   } else {
-    console.log("✅ Extracted ABI");
+    console.log('✅ Extracted ABI');
     console.log(content);
   }
 };
 
-extractABI("Game", process.env.ABI_EXTRACT_DESTINATION);
+extractABI('Game', process.env.ABI_EXTRACT_DESTINATION);

@@ -1,24 +1,24 @@
 import {
   ChainlinkRandomizer,
   Game,
-  VRFCoordinatorV2Mock,
-} from "../typechain-types";
-import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
-import { parseEther } from "ethers/lib/utils";
-import { ethers, network, run } from "hardhat";
+  VRFCoordinatorV2Mock
+} from '../typechain-types';
+import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
+import { parseEther } from 'ethers/lib/utils';
+import { ethers, network, run } from 'hardhat';
 import {
   VERIFICATION_BLOCK_CONFIRMATIONS,
   networkConfig,
-  developmentChains,
-} from "./networks.config";
-import { BigNumber } from "ethers";
-import { expect } from "chai";
-import VRF_COORDINATOR_ABI from "@chainlink/contracts/abi/v0.8/VRFCoordinatorV2.json";
+  developmentChains
+} from './networks.config';
+import { BigNumber } from 'ethers';
+import { expect } from 'chai';
+import VRF_COORDINATOR_ABI from '@chainlink/contracts/abi/v0.8/VRFCoordinatorV2.json';
 
-type CurrentRound = Awaited<ReturnType<Game["currentRound"]>>;
-type LastRound = Awaited<ReturnType<Game["lastRound"]>>;
-type Stats = Awaited<ReturnType<Game["stats"]>>;
-type PlayerState = Awaited<ReturnType<Game["players"]>>;
+type CurrentRound = Awaited<ReturnType<Game['currentRound']>>;
+type LastRound = Awaited<ReturnType<Game['lastRound']>>;
+type Stats = Awaited<ReturnType<Game['stats']>>;
+type PlayerState = Awaited<ReturnType<Game['players']>>;
 
 type Info = {
   current: CurrentRound;
@@ -29,15 +29,15 @@ type GetInfoCallback = (info: Info) => Promise<any> | any;
 type GetPlayerCallback = (player: PlayerState) => Promise<any> | any;
 
 export const ROUND_DURATION = 5 * 60;
-export const GAME_PRICE = parseEther("0.001");
+export const GAME_PRICE = parseEther('0.001');
 
 export const sleep = (duration: number) =>
   new Promise((resolve) => setTimeout(resolve, duration));
 export const verify = async (address: string, args: any[]) => {
   try {
-    await run("verify:verify", {
+    await run('verify:verify', {
       address: address,
-      constructorArguments: args,
+      constructorArguments: args
     });
     console.log(`✅ ${address} verified`);
   } catch (err) {
@@ -49,7 +49,7 @@ export const getInfo = async (game: Game, callback: GetInfoCallback) =>
   callback({
     current: await game.currentRound(),
     last: await game.lastRound(),
-    stats: await game.stats(),
+    stats: await game.stats()
   });
 
 export const getPlayer = async (
@@ -85,7 +85,7 @@ export const tryWinning = async (
   randomizer: any,
   coordinator: VRFCoordinatorV2Mock
 ) => {
-  let rollId: BigNumber = BigNumber.from("0");
+  let rollId: BigNumber = BigNumber.from('0');
   let isWin = false;
   let result = 0;
   const captureRollId = (value: any) => {
@@ -105,13 +105,13 @@ export const tryWinning = async (
     return true;
   };
   await expect(play(bet, game, account))
-    .to.emit(game, "RollStarted")
+    .to.emit(game, 'RollStarted')
     .withArgs(captureRollId);
   expect(await game.getPendingBet(account.address))
     .gt(0)
     .and.lt(6);
   await expect(coordinator.fulfillRandomWords(rollId, randomizer.address))
-    .to.emit(game, "GameEnded")
+    .to.emit(game, 'GameEnded')
     .withArgs(account.address, captureWin, capture, captureRes);
   expect(await game.getPendingBet(account.address)).equal(0);
   return { isWin, result };
@@ -125,12 +125,12 @@ export const play = async (
 ) =>
   game.connect(account).play(bet, {
     from: account.address,
-    value: amount,
+    value: amount
   });
 
 export const claim = (game: Game, account: SignerWithAddress) =>
   game.connect(account).claim({
-    from: account.address,
+    from: account.address
   });
 
 const deployRealRandomizer = async (
@@ -139,7 +139,7 @@ const deployRealRandomizer = async (
   hash: string
 ) => {
   const RandomizerFactory = await ethers.getContractFactory(
-    "ChainlinkRandomizer"
+    'ChainlinkRandomizer'
   );
   return await RandomizerFactory.deploy(subId, coordinatorAddress, hash);
 };
@@ -150,7 +150,7 @@ const deployFakeRandomizer = async (
   hash: string
 ) => {
   const ChainlinkRandomizerMock = await ethers.getContractFactory(
-    "ChainlinkRandomizerMock"
+    'ChainlinkRandomizerMock'
   );
   return await ChainlinkRandomizerMock.deploy(subId, coordinatorAddress, hash);
 };
@@ -164,10 +164,10 @@ export const deploy = async (config?: DeployConfig) => {
   const network = networkConfig.default;
 
   // Deploy fake Chainlink Coordinator
-  const BASE_FEE = "100000000000000000";
-  const GAS_PRICE_LINK = "1000000000"; // 0.000000001 LINK per gas
+  const BASE_FEE = '100000000000000000';
+  const GAS_PRICE_LINK = '1000000000'; // 0.000000001 LINK per gas
   const MockCoordinatorFactory = await ethers.getContractFactory(
-    "VRFCoordinatorV2Mock"
+    'VRFCoordinatorV2Mock'
   );
   const coordinator = await MockCoordinatorFactory.deploy(
     BASE_FEE,
@@ -176,7 +176,7 @@ export const deploy = async (config?: DeployConfig) => {
   const vrfCoordinatorAddress = coordinator.address;
 
   // Fund fake subscription
-  const subscriptionId = ethers.BigNumber.from("1");
+  const subscriptionId = ethers.BigNumber.from('1');
   await coordinator.createSubscription();
   await coordinator.fundSubscription(subscriptionId, network.fundAmount);
 
@@ -187,11 +187,11 @@ export const deploy = async (config?: DeployConfig) => {
   const randomizer = await randomizerCreator(
     subscriptionId,
     vrfCoordinatorAddress,
-    network["keyHash"]
+    network['keyHash']
   );
 
   // Initialize contract
-  const Game = await ethers.getContractFactory("Game");
+  const Game = await ethers.getContractFactory('Game');
   const game = await Game.deploy(randomizer.address);
 
   // Add consumer
@@ -222,7 +222,7 @@ export const deployStaging = async () => {
   );
 
   // Initialize contract
-  const Game = await ethers.getContractFactory("Game");
+  const Game = await ethers.getContractFactory('Game');
   const game = await Game.deploy(randomizer.address);
 
   // Add consumer
