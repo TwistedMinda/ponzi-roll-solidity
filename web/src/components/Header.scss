@@ -1,0 +1,46 @@
+@import 'styles/vars';
+
+.header {
+  margin-top: 1.5rem;
+
+  .top-title {
+    margin-bottom: 0.5rem;
+    text-align: center;
+    font-size: 1.4rem;
+    color: $gray;
+  }
+
+  .counter {
+    flex: 1;
+    text-align: center;
+    font-weight: bold;
+    font-size: 1.8rem;
+  }
+
+  .ended {
+    font-size: 0.7rem;
+    color: $red;
+    margin-top: 0.2rem;
+  }
+
+  .top-formula {
+    margin-top: 1rem;
+    max-width: 100%;
+    font-size: 1.6rem;
+    color: $yellow;
+  }
+
+  .formula-icon-op {
+    opacity: 0.38;
+    margin: 0 12px;
+    font-size: 1.5rem;
+    text-transform: lowercase;
+  }
+
+  .formula-icon-op.important {
+    opacity: 0.8;
+  }
+
+  .formula-icon {
+  }
+}

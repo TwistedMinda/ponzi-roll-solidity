@@ -1,0 +1,30 @@
+@import 'styles/vars';
+
+.card {
+  border: 1px solid #333;
+  padding: 1rem 0rem;
+  text-align: center;
+  line-height: 1.5rem;
+  width: 100%;
+  border-radius: $mainBorderRadius;
+  cursor: pointer;
+  user-select: none;
+
+  &.on,
+  &:hover {
+    border-bottom: 1px solid #4f7942;
+  }
+  &.off {
+    opacity: 0.7;
+  }
+  &.off:hover {
+    border-bottom: 1px solid #555;
+  }
+
+  &.top-space {
+    margin-top: 2rem;
+  }
+  &.bot-space {
+    margin-bottom: 1rem;
+  }
+}

@@ -1,0 +1,32 @@
+@import 'styles/vars';
+
+.main-select {
+  padding: 8px 14px;
+  background-color: rgba(0, 0, 0, 0.9);
+  color: #fff;
+  border: none;
+  outline: none;
+  user-select: none;
+  border-radius: 6px;
+  min-width: 140px;
+  text-align: center;
+
+  font-family: 'Inconsolata', -apple-system, BlinkMacSystemFont, 'Segoe UI',
+    'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans',
+    'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 1rem;
+
+  &.disabled {
+    opacity: 0.46;
+    pointer-events: box-none;
+  }
+
+  @media (max-width: $smallScreenMax) {
+    align-self: flex-start;
+  }
+}

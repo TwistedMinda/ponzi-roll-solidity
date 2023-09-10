@@ -1,0 +1,249 @@
+{
+  "version": "0.1.0",
+  "name": "solana_app",
+  "instructions": [
+    {
+      "name": "initAppState",
+      "accounts": [
+        {
+          "name": "currentRound",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "lastRound",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "stats",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "player",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "initPlayer",
+      "accounts": [
+        {
+          "name": "playerState",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "player",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "play",
+      "accounts": [
+        {
+          "name": "currentRound",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "lastRound",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "stats",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "playerState",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "player",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "bet",
+          "type": "u8"
+        }
+      ]
+    },
+    {
+      "name": "claim",
+      "accounts": [
+        {
+          "name": "currentRound",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "lastRound",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "stats",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "playerState",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "player",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": []
+    }
+  ],
+  "accounts": [
+    {
+      "name": "PlayerState",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "lastClaimedRound",
+            "type": "u32"
+          },
+          {
+            "name": "totalClaimed",
+            "type": "u32"
+          },
+          {
+            "name": "nbShares",
+            "type": "u32"
+          },
+          {
+            "name": "currentRoundShares",
+            "type": "u32"
+          },
+          {
+            "name": "lastWonRound",
+            "type": "u32"
+          },
+          {
+            "name": "payback",
+            "type": "u32"
+          },
+          {
+            "name": "pendingRollId",
+            "type": "u32"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "CurrentRound",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "id",
+            "type": "u32"
+          },
+          {
+            "name": "benefits",
+            "type": "u32"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "LastRound",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "winners",
+            "type": "u32"
+          },
+          {
+            "name": "benefits",
+            "type": "u32"
+          },
+          {
+            "name": "totalClaimed",
+            "type": "u32"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Stats",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "totalClaimed",
+            "type": "u32"
+          },
+          {
+            "name": "totalWinners",
+            "type": "u32"
+          },
+          {
+            "name": "totalRolls",
+            "type": "u32"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    }
+  ]
+}
