@@ -22,3 +22,5 @@ Rewards formula is as follow:
 **Note 2**: Rewards that are not claimed are automatically redistributed to the next round, meaning users who stop coming are not using their share.
 
 **Note 3**: Pending rewards are automatically claimed if a users plays.
+
+![](https://github.com/TwistedMinda/web3-roll-dice/blob/main/screen.jpg)
